@@ -1,0 +1,37 @@
+.company-overview{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:72px;align-items:center}
+.about-label{display:block;color:#007f79;font-size:14px;font-weight:600;margin-bottom:18px}
+.company-intro h2,.about-section-heading h2{font-size:36px;font-weight:650;line-height:1.5;letter-spacing:0;margin:0 0 22px;color:#203945}
+.company-intro p{font-size:16px;line-height:1.95;color:#536873;margin:0 0 17px}
+.company-intro .company-lead{font-size:18px;color:#294752;line-height:1.9}
+.company-intro>.text-link{margin-top:4px}
+.company-visual{min-height:480px;align-self:stretch;position:relative;overflow:hidden;background:#081b25;color:#fff;border-radius:4px;isolation:isolate}
+.company-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#081b2510 15%,#081b25ed 85%);z-index:-1}
+.company-visual img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;object-position:75% center;z-index:-2}
+.company-visual>div{position:absolute;bottom:38px;left:34px;right:26px}
+.company-visual span{font-size:14px;color:#b1dedb}
+.company-visual p{font-size:29px;line-height:1.65;font-weight:550;margin:17px 0}
+.company-visual small{font-size:13px;color:#b7cdd5;line-height:1.8}
+.company-principles{background:#f2f7f7}
+.about-section-heading{max-width:780px;margin-bottom:40px}
+.about-section-heading h2{margin-bottom:15px}
+.about-section-heading p{font-size:16px;line-height:1.9;color:#536873;margin:0}
+.principle-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:38px}
+.principle-list>div{border-top:2px solid #b5d6d2;padding-top:24px}
+.principle-list h3,.company-business-list h3,.support-list h3{font-size:22px;line-height:1.6;color:#203945;font-weight:600;margin:0 0 12px}
+.principle-list p,.company-business-list p,.support-list p{font-size:16px;line-height:1.9;color:#536873;margin:0}
+.company-business-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 48px}
+.company-business-list>article{display:flex;gap:22px;padding:30px 0;border-top:1px solid #dce5e9}
+.company-business-list>article>.icon{width:30px;height:30px;color:#007f79;flex-shrink:0;margin-top:4px}
+.company-business-list .text-link{margin-top:15px}
+.company-support{background:#f2f7f7}
+.company-support-layout{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:84px;align-items:start}
+.company-support .about-section-heading{margin-bottom:0}
+.company-support .text-link{margin-top:22px}
+.support-list>article{display:grid;grid-template-columns:72px minmax(0,1fr);gap:24px;border-top:1px solid #cfdddf;padding:26px 0}
+.support-list>article:first-child{padding-top:0;border-top:0}
+.support-list>article>span{color:#007f79;font-size:14px;padding-top:5px;font-weight:600}
+.support-list h3{font-size:20px;margin-bottom:9px}
+.company-industries ul{display:flex;flex-wrap:wrap;gap:12px 16px;list-style:none;padding:0;margin:0}
+.company-industries li{font-size:16px;color:#36535e;border:1px solid #dce5e9;padding:12px 23px;border-radius:3px}
+@media(max-width:1100px){.company-overview{gap:40px}.company-support-layout{gap:45px}.company-intro h2,.about-section-heading h2{font-size:32px}.company-business-list{column-gap:32px}.company-visual>div{left:26px;right:20px}.company-visual p{font-size:26px}}
+@media(max-width:760px){.company-overview,.company-support-layout{grid-template-columns:1fr;gap:32px}.company-intro h2,.about-section-heading h2{font-size:28px}.company-intro .company-lead{font-size:17px}.company-visual{min-height:330px}.company-visual>div{bottom:26px;left:26px}.company-visual p{font-size:26px}.about-section-heading{margin-bottom:28px}.principle-list{grid-template-columns:1fr;gap:24px}.principle-list>div{padding-top:20px}.principle-list h3,.company-business-list h3{font-size:21px}.company-business-list{grid-template-columns:1fr}.company-business-list>article{gap:16px;padding:26px 0}.company-business-list>article>.icon{width:25px;height:25px}.company-support-layout{gap:38px}.support-list>article{grid-template-columns:1fr;gap:9px;padding-block:24px}.support-list>article>span{padding:0}.support-list h3{font-size:20px}.company-industries ul{gap:10px}.company-industries li{font-size:15px;padding:10px 17px}}

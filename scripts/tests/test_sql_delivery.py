@@ -1,0 +1,43 @@
+import json
+from pathlib import Path
+import re
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+class SqlDeliveryTest(unittest.TestCase):
+    def setUp(self):
+        self.sql = (ROOT / 'init.sql').read_text(encoding='utf-8')
+
+    def test_installer_contains_every_runtime_table(self):
+        runtime = (ROOT / 'website/src/main/resources/schema.sql').read_text(encoding='utf-8')
+        runtime_tables = set(re.findall(r'CREATE TABLE IF NOT EXISTS `?(\w+)', runtime))
+        installer_tables = set(re.findall(r'CREATE TABLE IF NOT EXISTS `?(\w+)', self.sql))
+        self.assertEqual(installer_tables, runtime_tables)
+        self.assertTrue((ROOT / 'database/create-database.sql').is_file())
+
+    def test_seed_import_is_guarded_and_has_no_account_or_customer_data(self):
+        self.assertIn('@xgsz_initialize', self.sql)
+        self.assertIn('initial-content-v1', self.sql)
+        self.assertIn('cms-catalog-v1', self.sql)
+        self.assertNotRegex(self.sql, r'(?i)\b(?:DROP|TRUNCATE|DELETE)\b')
+        self.assertNotRegex(self.sql, r'(?i)INSERT INTO\s+`?(?:Admins|site_admin|User|Orders|site_inquiry|user_location)`?\s*\(')
+        inserts = re.findall(r'INSERT INTO.*?;', self.sql, flags=re.S)
+        self.assertTrue(inserts)
+        self.assertTrue(all('WHERE @xgsz_initialize' in statement for statement in inserts))
+
+    def test_json_payloads_include_pages_products_services_and_empty_contacts(self):
+        documents = [json.loads(bytes.fromhex(encoded).decode('utf-8')) for encoded in re.findall(r"CONVERT\(X'([0-9a-f]+)' USING utf8mb4\)", self.sql)]
+        self.assertTrue(any(document.get('name') == 'GPU 服务器整机' for document in documents))
+        self.assertTrue(any(document.get('name') == '模型推理优化' for document in documents))
+        self.assertEqual(sum('heroTitle' in document for document in documents), 7)
+        settings = next(document for document in documents if 'wecomQr' in document)
+        self.assertEqual(settings['phone'], '')
+        self.assertEqual(settings['email'], '')
+        self.assertEqual(settings['wecomQr'], '')
+
+
+if __name__ == '__main__':
+    unittest.main()
