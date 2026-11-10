@@ -1,0 +1,37 @@
+.cms-repeater{padding:0;border:0;margin:28px 0}
+.cms-repeater>legend{margin-bottom:14px;font-size:18px;color:#203945}
+.cms-repeater>.form-hint{margin:0 0 18px}
+.cms-repeater-rows{display:grid;gap:12px;margin-bottom:18px}
+.cms-repeat-row{padding:0;border:1px solid #d7e3e7;border-radius:6px;background:#fff;overflow:hidden}
+.cms-repeat-row>summary{display:flex;align-items:center;gap:14px;min-height:58px;padding:14px 18px;cursor:pointer;list-style:none;color:#294b5a;font-size:15px;font-weight:600;line-height:1.7;user-select:none}
+.cms-repeat-row>summary::-webkit-details-marker{display:none}
+.cms-repeat-row>summary::marker{content:''}
+.cms-repeat-row>summary:hover{background:#f1f7f7}
+.cms-repeat-row>summary:focus-visible{outline:3px solid #53aaa4;outline-offset:-3px}
+.cms-repeat-row>summary>span:first-child{min-width:0;overflow-wrap:anywhere}
+.cms-repeat-row>summary>small{margin-left:auto;color:#607c89;font-size:12px;font-weight:400;white-space:nowrap}
+.cms-repeat-chevron{width:20px;font-size:22px;line-height:1;text-align:center;color:#367a7a;transition:transform 160ms ease}
+.cms-repeat-row[open]>summary{border-bottom:1px solid #dfe9eb;background:#f0f7f6}
+.cms-repeat-row[open]>summary>.cms-repeat-chevron{transform:rotate(180deg)}
+.cms-repeat-body{padding:18px 20px 2px}
+.cms-repeat-body>.cms-repeater{margin-top:22px;padding:16px;border:1px solid #e0e9ec;border-radius:5px;background:#f7fafb}
+.cms-repeat-body>.cms-repeater>legend{font-size:15px}
+.cms-repeat-actions{margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid #e4ecee}
+.cms-repeat-actions span{font-size:12px}
+.cms-repeat-actions~.field{margin-bottom:18px}
+.cms-fields>[data-field]{width:100%;max-width:850px}
+.cms-save-bar{bottom:16px;border:1px solid #d3e1e4;border-radius:6px;box-shadow:0 8px 24px #153f4a14;padding:14px 20px}
+.cms-save-bar::before{content:'修改将在保存后同步到官网';color:#536873;font-size:13px;line-height:1.7}
+.cms-page-form{overflow:visible}
+.panel{border-radius:8px}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#338f89;outline:3px solid #338f8924;outline-offset:1px}
+@media(max-width:700px){
+  .cms-fields{padding:20px 16px}
+  .cms-repeat-row>summary{padding:13px 14px;font-size:15px}
+  .cms-repeat-body{padding:16px 14px 2px}
+  .cms-repeat-body>.cms-repeater{padding:12px}
+  .cms-save-bar{bottom:8px;padding:12px 14px}
+  .cms-save-bar::before{display:none}
+  .cms-save-bar .primary{width:100%}
+}
+@media(prefers-reduced-motion:reduce){.cms-repeat-chevron{transition:none}}

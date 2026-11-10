@@ -12,7 +12,7 @@ test('普通 HTTP 环境可打开产品和页面编辑表单',async({page})=>{
   await expect(page.getByLabel('首页主标题',{exact:true})).toBeVisible();
 });
 
-test('含特殊字符的产品名称保持原文，新增服务未填明细时移动端有回退', async ({ page }) => {
+test('含特殊字符的产品名称保持原文，新增服务在官网技术服务页展示', async ({ page }) => {
   await page.goto('/admin.html#/products');
   await page.getByRole('button', { name: '新增产品' }).click();
   await page.getByLabel('产品名称').fill('AT&T GPU');
@@ -29,9 +29,10 @@ test('含特殊字符的产品名称保持原文，新增服务未填明细时�
   await page.getByLabel('服务简介').fill('这是一段服务简介');
   await page.getByRole('button', { name: '保存服务' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await page.goto('/#/mini');
-  await page.getByRole('button', { name: '服务', exact: true }).click();
-  await expect(page.getByRole('button', { name: '新增演示服务 这是一段服务简介' })).toBeVisible();
+  await page.goto('/');
+  const service = page.locator('.service-row').filter({ hasText: '新增演示服务' }).first();
+  await expect(service).toBeVisible();
+  await expect(service).toContainText('这是一段服务简介');
 });
 
 test('删除产品先确认，并在刷新后保留结果', async ({ page }) => {

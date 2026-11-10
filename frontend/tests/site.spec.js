@@ -35,18 +35,13 @@ test('需求真实提交到服务器，拒绝无效提交并能导出回执', as
   expect((await download).suggestedFilename()).toMatch(/芯光数智.*\.json/);
 });
 
-test('手机导航与小程序体验可用，页面没有横向溢出', async ({ page }) => {
+test('手机导航可用，页面没有横向溢出', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.getByRole('button', { name: '打开导航' }).click();
   await page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '产品中心' }).click();
   await expect(page.getByRole('heading', { name: '为业务找到合适的算力' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await page.goto('/#/mini');
-  await page.getByRole('button', { name: '服务', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '算力服务，随时了解' })).toBeVisible();
-  await page.getByRole('button', { name: '我的需求' }).click();
-  await expect(page.getByRole('heading', { name: '我的需求单' })).toBeVisible();
 });
 
 test('键盘跳过导航后保留页面，并能聚焦主要内容', async ({ page }) => {
@@ -58,32 +53,13 @@ test('键盘跳过导航后保留页面，并能聚焦主要内容', async ({ pa
   await expect(page.locator('#main')).toBeFocused();
 });
 
-test('小程序内保存需求后，查看我的需求会关闭弹窗并更新列表', async ({ page }) => {
-  await page.goto('/#/mini');
-  await page.getByRole('button', { name: '获取方案' }).click();
-  const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('您的称呼').fill('移动端测试');
-  await dialog.getByLabel('联系电话').fill('abc123xyz');
-  await dialog.getByLabel('公司名称').fill('原型测试公司');
-  await dialog.getByLabel('需求描述').fill('测试同一路由内更新需求列表');
-  await dialog.getByLabel('我同意将填写的信息用于本次业务联系').check();
-  await dialog.getByRole('button', { name: '提交需求' }).click();
-  await expect(dialog.getByRole('heading', { name: '聊聊您的需求' })).toBeVisible();
-  await dialog.getByLabel('联系电话').fill('13800138000');
-  await dialog.getByRole('button', { name: '提交需求' }).click();
-  await page.getByRole('link', { name: '查看我的需求' }).click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '我的需求单' })).toBeVisible();
-  await expect(page.getByText('原型测试公司')).toBeVisible();
-});
-
 test('各页面在手机、平板和桌面尺寸下资源正常且不横向溢出', async ({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
   for (const width of [360, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const route of ['/', '/products', '/services', '/partners', '/about', '/contact', '/mini']) {
+    for (const route of ['/', '/products', '/services', '/partners', '/about', '/contact']) {
       await page.goto(`/#${route}`);
       await expect(page.locator('#main')).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${route} at ${width}px`).toBe(true);

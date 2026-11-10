@@ -35,3 +35,58 @@
 .company-industries li{font-size:16px;color:#36535e;border:1px solid #dce5e9;padding:12px 23px;border-radius:3px}
 @media(max-width:1100px){.company-overview{gap:40px}.company-support-layout{gap:45px}.company-intro h2,.about-section-heading h2{font-size:32px}.company-business-list{column-gap:32px}.company-visual>div{left:26px;right:20px}.company-visual p{font-size:26px}}
 @media(max-width:760px){.company-overview,.company-support-layout{grid-template-columns:1fr;gap:32px}.company-intro h2,.about-section-heading h2{font-size:28px}.company-intro .company-lead{font-size:17px}.company-visual{min-height:330px}.company-visual>div{bottom:26px;left:26px}.company-visual p{font-size:26px}.about-section-heading{margin-bottom:28px}.principle-list{grid-template-columns:1fr;gap:24px}.principle-list>div{padding-top:20px}.principle-list h3,.company-business-list h3{font-size:21px}.company-business-list{grid-template-columns:1fr}.company-business-list>article{gap:16px;padding:26px 0}.company-business-list>article>.icon{width:25px;height:25px}.company-support-layout{gap:38px}.support-list>article{grid-template-columns:1fr;gap:9px;padding-block:24px}.support-list>article>span{padding:0}.support-list h3{font-size:20px}.company-industries ul{gap:10px}.company-industries li{font-size:15px;padding:10px 17px}}
+.about-page .about-subhero .container{grid-template-columns:minmax(0,1fr) minmax(360px,440px);gap:56px;align-items:center}
+.about-subhero .subhero-copy{padding-block:12px}
+.hero-milestone-announcer{position:relative;width:100%;max-width:440px;justify-self:end;padding:24px 26px 18px;border:1px solid #ffffff24;border-radius:6px;background:linear-gradient(145deg,#0d3440eb,#092630f0 62%,#0b2e38e8);box-shadow:0 26px 60px #010c127d;backdrop-filter:blur(12px);overflow:hidden}
+.hero-milestone-announcer:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 92% 5%,#58ddd01f,transparent 34%),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:auto,68px 100%;pointer-events:none}
+.hero-milestone-announcer>*{position:relative;z-index:1}
+.hero-announcer-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:15px;border-bottom:1px solid #ffffff1a}
+.hero-announcer-head>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.hero-announcer-label{display:flex;align-items:center;gap:9px;color:#f0fbfa;font-size:15px;line-height:1.4;font-weight:600;letter-spacing:.4px}
+.hero-announcer-label i{display:block;width:7px;height:7px;border-radius:50%;background:#5be0d2;box-shadow:0 0 0 5px #5be0d217;animation:milestone-pulse 2.4s ease-out infinite}
+.hero-announcer-head small{color:#7fa9b2;font-size:10px;line-height:1.5;letter-spacing:1.1px}
+.hero-announcer-head>a{display:inline-flex;align-items:center;gap:7px;min-height:36px;color:#b8dcd9;font-size:12px;white-space:nowrap}
+.hero-announcer-head>a:hover,.hero-announcer-head>a:focus-visible{color:#fff}
+.hero-announcer-head>a .icon{width:14px;height:14px}
+@keyframes milestone-pulse{0%,100%{box-shadow:0 0 0 4px #5be0d213}50%{box-shadow:0 0 0 8px #5be0d205}}
+.hero-announcer-window{position:relative;height:154px;margin-top:17px}
+.hero-announcer-slide{position:absolute;inset:0;opacity:0;transform:translateX(16px);transition:opacity .35s ease,transform .45s cubic-bezier(.22,.61,.36,1);pointer-events:none}
+.hero-announcer-slide.is-active{opacity:1;transform:translateX(0);pointer-events:auto}
+.hero-announcer-meta{display:flex;align-items:center;gap:10px;min-height:23px}
+.hero-announcer-meta time{color:#7cd8d0;font:600 12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.5px}
+.hero-announcer-meta span{display:inline-flex;align-items:center;min-height:21px;padding:1px 8px;border:1px solid #68d9ce47;border-radius:2px;background:#55d8cb12;color:#9ce8e1;font-size:10px;line-height:1.5;letter-spacing:.6px}
+.about-subhero .hero-announcer-slide h2{display:-webkit-box;max-width:100%;margin:10px 0 8px;overflow:hidden;color:#f4fcfb;font-size:22px;font-weight:600;line-height:1.5;letter-spacing:0;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.about-subhero .hero-announcer-slide p{display:-webkit-box;max-width:100%;margin:0;overflow:hidden;color:#a5bec5;font-size:13px;line-height:1.75;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.hero-announcer-foot{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:12px;padding-top:13px;border-top:1px solid #ffffff1a}
+.hero-announcer-count{color:#6d949e;font:500 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1px;white-space:nowrap}
+.hero-announcer-count b{color:#e2f9f5;font-weight:600}
+.hero-announcer-controls{display:flex;gap:7px}
+.hero-announcer-controls button{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:1px solid #ffffff24;border-radius:50%;background:#ffffff0a;color:#bfdadd;transition:background .2s,border-color .2s,color .2s}
+.hero-announcer-controls button:hover,.hero-announcer-controls button:focus-visible{border-color:#6ee1d4a3;background:#55d8cb24;color:#fff}
+.hero-announcer-controls button .icon{width:14px;height:14px}
+.hero-announcer-controls [data-announcer-prev] .icon{transform:rotate(180deg)}
+.hero-announcer-controls .announcer-play{display:none}
+.hero-announcer-controls [data-announcer-toggle].is-paused .announcer-pause{display:none}
+.hero-announcer-controls [data-announcer-toggle].is-paused .announcer-play{display:block}
+.company-milestones{position:relative;background:#f4f8f8;overflow:hidden}
+.company-milestones:before{content:"";position:absolute;width:620px;height:620px;right:-210px;top:-280px;border:1px solid #d8e8e6;border-radius:50%;box-shadow:0 0 0 90px #eef6f52e,0 0 0 180px #eef6f51c;pointer-events:none}
+.company-milestones>.container{position:relative;z-index:1}
+.milestone-history{padding:24px 34px 32px;background:#fff;border:1px solid #dce8e7;border-radius:6px}
+.milestone-history-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:17px;border-bottom:1px solid #e4ecec}
+.milestone-history-head span{font-size:14px;font-weight:600;color:#203945;letter-spacing:.5px}
+.milestone-history-head small{font-size:11px;color:#83979d;letter-spacing:.6px}
+.project-timeline{list-style:none;padding:0;margin:0}
+.project-timeline>li{position:relative;display:grid;grid-template-columns:158px minmax(0,1fr);gap:34px;padding:28px 0 30px 30px;border-left:1px solid #c9dcdb}
+.project-timeline>li:before{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:#007f79;left:-5px;top:36px;box-shadow:0 0 0 5px #e0eeeb}
+.project-timeline>li:last-child{padding-bottom:0}
+.project-timeline>li:first-child:before{background:#23b5a6;box-shadow:0 0 0 5px #dff4f0,0 0 0 7px #dff4f066}
+.milestone-when{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding-top:2px}
+.milestone-when time{color:#00746e;font:600 15px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.3px;overflow-wrap:anywhere}
+.milestone-when span{display:inline-flex;padding:3px 8px;border-radius:2px;background:#edf6f5;color:#497d7b;font-size:10px;line-height:1.5;letter-spacing:.5px}
+.project-timeline h3{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:0 0 9px;font-size:21px;color:#203945;line-height:1.5}
+.project-timeline h3 em{display:inline-flex;padding:2px 7px;border:1px solid #b8e2dd;border-radius:2px;background:#effaf8;color:#087a71;font-size:10px;font-style:normal;line-height:1.5;letter-spacing:.5px;font-weight:500}
+.project-timeline p{margin:0;color:#536873;line-height:1.9}
+@media(max-width:1100px){.about-page .about-subhero .container{grid-template-columns:minmax(0,1fr) 380px;gap:36px}.hero-milestone-announcer{padding-inline:22px}.about-subhero .hero-announcer-slide h2{font-size:20px}}
+@media(max-width:960px){.about-page .about-subhero .container{grid-template-columns:1fr;gap:28px}.hero-milestone-announcer{max-width:none;justify-self:stretch}.hero-announcer-window{height:136px}.milestone-history{padding-inline:26px}.project-timeline>li{grid-template-columns:138px minmax(0,1fr);gap:25px}}
+@media(max-width:760px){.about-subhero .subhero-copy{padding-block:0}.hero-milestone-announcer{padding:20px}.hero-announcer-head{gap:12px}.hero-announcer-head>a{font-size:13px}.hero-announcer-window{height:152px;margin-top:15px}.about-subhero .hero-announcer-slide h2{font-size:20px}.about-subhero .hero-announcer-slide p{font-size:14px;line-height:1.7}.hero-announcer-foot{margin-top:10px;padding-top:12px}.milestone-history{padding:20px 20px 26px}.milestone-history-head{padding-bottom:14px}.project-timeline>li{grid-template-columns:1fr;gap:11px;padding:24px 0 26px 22px}.project-timeline>li:before{top:29px}.project-timeline h3{font-size:19px}.milestone-when{flex-direction:row;align-items:center;gap:8px}.milestone-when time{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.hero-announcer-label i{animation:none}.hero-announcer-slide{transition:none}}

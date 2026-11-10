@@ -106,5 +106,13 @@
       ],
       "note": "服务内容可按设备情况与业务需求组合。"
     }
-  ]
+  ],
+  "settings": {
+    "phone": "18458055296",
+    "email": "",
+    "address": "",
+    "wecomName": "",
+    "wecomUrl": "",
+    "wecomQr": ""
+  }
 }

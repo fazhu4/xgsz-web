@@ -107,6 +107,16 @@ public class WebsiteService {
         input.put("version",version+1);return input;
     }
     @Transactional public void seed() throws Exception {
+        if(db.queryForObject("SELECT COUNT(*) FROM site_content WHERE id='site-settings'",Integer.class)==0){
+            try(var stream=new ClassPathResource("seed-content.json").getInputStream()){
+                var initial=json.readTree(stream).path("settings");
+                if(initial.isObject()){
+                    var value=json.convertValue(initial,new TypeReference<LinkedHashMap<String,Object>>(){});
+                    value.putAll(catalog.contacts());
+                    value.put("version",0);settings(value);
+                }
+            }
+        }
         if(catalog.contacts().isEmpty()){var settings=db.queryForList("SELECT payload FROM site_content WHERE id='site-settings'");if(!settings.isEmpty())catalog.syncContacts(parse(settings.get(0).get("payload").toString()));}
         migrateProducts();
         if(db.queryForObject("SELECT COUNT(*) FROM site_metadata WHERE name='initial-content-v1'",Integer.class)>0)return;

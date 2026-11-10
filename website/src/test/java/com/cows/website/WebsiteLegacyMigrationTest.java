@@ -30,7 +30,9 @@ class WebsiteLegacyMigrationTest {
         db.update("UPDATE Admins SET userName='renamed-owner' WHERE userName='legacy-owner'");catalog.seed();
         assertEquals(0,db.queryForObject("SELECT COUNT(*) FROM Admins WHERE userName='legacy-owner'",Integer.class));
     }
-    @Test void originalBasicInformationContactFieldsSurviveCopyrightEditsAndContactSaves() throws Exception {
+    @Test @org.springframework.transaction.annotation.Transactional void originalBasicInformationContactFieldsSurviveCopyrightEditsAndContactSaves() throws Exception {
+        db.update("DELETE FROM site_catalog_meta WHERE kind='basicInformation'");
+        db.update("DELETE FROM BasicInformation");
         var info=new com.cows.entity.BasicInformation();info.setPhone("400-111-2222");info.setEmail("old@example.com");info.setAddress("旧地址");info.setEnable(true);info.setIcp("旧备案");
         db.update("INSERT INTO BasicInformation(phone,email,address,icp,isEnable) VALUES('400-111-2222','old@example.com','旧地址','旧备案',1)");
         long id=db.queryForObject("SELECT MAX(id) FROM BasicInformation",Long.class);

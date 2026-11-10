@@ -3,7 +3,7 @@
 .category-tabs button{max-width:100%;white-space:normal;overflow-wrap:anywhere}.product-body h3,.partner-card h3,.company-intro h2{overflow-wrap:anywhere}
 
 #app{overflow-wrap:anywhere}
-.header-inner,.brand-words,.main-nav,.hero-copy,.service-row>div,.service-detail summary>div,.company-business-list article>div,.cta-inner>div,.mini-product>span,.mini-service>span{min-width:0}
+.header-inner,.brand-words,.main-nav,.hero-copy,.service-row>div,.service-detail summary>div,.company-business-list article>div,.cta-inner>div{min-width:0}
 .site-header{height:auto;min-height:82px}
 .header-inner{min-height:82px;height:auto;padding-block:12px;flex-wrap:wrap}
 .header-inner>.brand{min-width:0;max-width:260px;flex-shrink:1}
@@ -34,7 +34,6 @@
 .company-visual{display:flex;align-items:end}
 .company-visual>div{position:relative;inset:auto;width:100%;padding:38px 34px}
 .cms-slide-controls{max-width:100%}
-.mini-product-icon,.mini-service>.icon{flex-shrink:0}
 .modal{overflow-wrap:anywhere}
 @media(min-width:1600px){.hero{min-height:670px}}
 @media(max-width:760px){

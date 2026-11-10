@@ -14,9 +14,11 @@ import java.util.*;
 public class WebsitePages {
     private final JdbcTemplate db;private final ObjectMapper json;
     private final Map<String,Map<String,Object>> schema;
+    private final Map<String,Map<String,Object>> defaults;
     public WebsitePages(JdbcTemplate db,ObjectMapper json) throws Exception {
         this.db=db;this.json=json;
         try(var input=new ClassPathResource("cms-pages.json").getInputStream()){schema=json.readValue(input,new TypeReference<LinkedHashMap<String,Map<String,Object>>>(){});}
+        try(var input=new ClassPathResource("seed-cms.json").getInputStream()){defaults=json.convertValue(json.readTree(input).path("pages"),new TypeReference<LinkedHashMap<String,Map<String,Object>>>(){});}
     }
     public Map<String,Map<String,Object>> definitions(){return schema;}
     public Map<String,Object> all(){Map<String,Object> pages=new LinkedHashMap<>();for(String key:schema.keySet())pages.put(key,get(key));return pages;}
@@ -24,7 +26,7 @@ public class WebsitePages {
         if(!schema.containsKey(key))throw new ResponseStatusException(HttpStatus.NOT_FOUND,"页面不存在");
         var rows=db.queryForList("SELECT payload,version FROM site_page WHERE id=?",key);
         if(rows.isEmpty())throw new ResponseStatusException(HttpStatus.NOT_FOUND,"页面尚未初始化");
-        try {var result=json.readValue(rows.get(0).get("payload").toString(),new TypeReference<LinkedHashMap<String,Object>>(){});result.put("version",rows.get(0).get("version"));return result;}
+        try {var result=new LinkedHashMap<String,Object>(defaults.get(key));result.putAll(json.readValue(rows.get(0).get("payload").toString(),new TypeReference<LinkedHashMap<String,Object>>(){}));result.put("version",rows.get(0).get("version"));return result;}
         catch(Exception e){throw new IllegalStateException(e);}
     }
     @SuppressWarnings("unchecked")

@@ -53,6 +53,7 @@ test('后台可处理官网咨询并将设置同步到页脚，文本不作为HT
   await page.getByLabel('联系邮箱').fill('demo@example.com');
   await page.getByLabel('联系地址').fill('<img src=x onerror=alert(1)>');
   await page.getByRole('button', { name: '保存设置' }).click();
+  await expect(page.getByRole('status')).toContainText('联系信息已保存');
   await page.goto('/');
   await expect(page.getByText('demo@example.com')).toBeVisible();
   await expect(page.getByText('<img src=x onerror=alert(1)>')).toBeVisible();

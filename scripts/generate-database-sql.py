@@ -56,16 +56,54 @@ def generate():
                 insert('Products', {'id': record_id, 'name': original['name'], 'description': original['desc'], 'categoryId': categories[original['category']], 'coverImage': '', 'detailImages': '[]', 'brand': '', 'isAvailable': True})
             insert('site_content', {'id': original['id'], 'kind': kind, 'product_id': record_id if kind == 'products' else None, 'payload': payload, 'version': 1})
 
-    settings = {key: '' for key in ('phone', 'email', 'address', 'wecomName', 'wecomUrl', 'wecomQr')}
+    settings = {key: content.get('settings', {}).get(key, '') for key in ('phone', 'email', 'address', 'wecomName', 'wecomUrl', 'wecomQr')}
     insert('site_content', {'id': 'site-settings', 'kind': 'settings', 'payload': settings, 'version': 1})
-    insert('BasicInformation', {'id': 1, 'phone': '', 'email': '', 'address': '', 'weChatImage': '', 'icp': '', 'publicSecurity': '', 'copyright': '', 'isEnable': True})
+    insert('BasicInformation', {'id': 1, 'phone': settings['phone'], 'email': settings['email'], 'address': settings['address'], 'weChatImage': '', 'icp': '', 'publicSecurity': '', 'copyright': '', 'isEnable': True})
     insert('site_catalog_meta', {'kind': 'basicInformation', 'record_id': 1, 'payload': {}, 'version': 1})
 
     for page_id, page in cms['pages'].items():
         insert('site_page', {'id': page_id, 'payload': page, 'version': 1})
-    for marker in ('cms-admin-migrated-v1', 'cms-catalog-v1', 'initial-content-v1'):
+    for marker in ('cms-admin-migrated-v1', 'cms-catalog-v1', 'initial-content-v1', 'company-offerings-20261109'):
         insert('site_metadata', {'name': marker, 'content_value': 'complete'})
     statements.append('COMMIT;')
+    return '\n\n'.join(statements) + '\n'
+
+
+def generate_upgrade():
+    cms = json.loads((RESOURCES / 'seed-cms.json').read_text(encoding='utf-8'))['pages']
+    content = json.loads((RESOURCES / 'seed-content.json').read_text(encoding='utf-8'))
+    phone = literal(content['settings']['phone'])
+    capabilities = literal(cms['home']['capabilities'])
+    note = literal(cms['home']['heroNote'])
+    footer = literal(cms['global']['footerNote'])
+    statements = ['SET NAMES utf8mb4;', 'START TRANSACTION;', "SET @xgsz_upgrade = NOT EXISTS (SELECT 1 FROM site_metadata WHERE name='company-offerings-20261109');"]
+    statements.append(f"UPDATE site_page SET payload=JSON_SET(payload, '$.capabilities', CAST({capabilities} AS JSON), '$.heroNote', {note}),version=version+1 WHERE id='home' AND @xgsz_upgrade;")
+    statements.append(f"UPDATE site_page SET payload=JSON_SET(payload, '$.footerNote', {footer}),version=version+1 WHERE id='global' AND @xgsz_upgrade;")
+    for page_id in ('products', 'about'):
+        defaults = literal(cms[page_id])
+        statements.append(f"UPDATE site_page SET payload=JSON_MERGE_PATCH(CAST({defaults} AS JSON),payload),version=version+1 WHERE id='{page_id}' AND @xgsz_upgrade;")
+    settings = literal(content['settings'])
+    statements.append(f"INSERT INTO site_content(id,kind,payload,version) SELECT 'site-settings','settings',{settings},1 WHERE @xgsz_upgrade AND NOT EXISTS (SELECT 1 FROM site_content WHERE id='site-settings');")
+    statements.append(f"UPDATE site_content SET payload=JSON_SET(payload,'$.phone',{phone}),version=version+1,updated_at=CURRENT_TIMESTAMP(6) WHERE id='site-settings' AND @xgsz_upgrade;")
+    statements.append(f"UPDATE BasicInformation SET phone={phone} WHERE isDeleted=0 AND id=(SELECT identifier FROM (SELECT MIN(id) AS identifier FROM BasicInformation WHERE isDeleted=0) AS selected) AND @xgsz_upgrade;")
+    statements.append("UPDATE site_catalog_meta SET version=version+1 WHERE kind='basicInformation' AND record_id=(SELECT MIN(id) FROM BasicInformation WHERE isDeleted=0) AND @xgsz_upgrade;")
+    statements.append("INSERT INTO site_metadata(name,content_value) SELECT 'company-offerings-20261109','complete' WHERE @xgsz_upgrade;")
+    statements.append('COMMIT;')
+    return '\n\n'.join(statements) + '\n'
+
+
+def generate_milestones_upgrade():
+    about = json.loads((RESOURCES / 'seed-cms.json').read_text(encoding='utf-8'))['pages']['about']
+    meta = literal({key: about[key] for key in ('milestonesTitle', 'milestonesDesc')})
+    milestones = literal(about['milestones'])
+    statements = [
+        'SET NAMES utf8mb4;',
+        'START TRANSACTION;',
+        "SET @xgsz_about_milestones = NOT EXISTS (SELECT 1 FROM site_metadata WHERE name='about-milestones-20261110');",
+        f"UPDATE site_page SET payload=JSON_SET(JSON_MERGE_PATCH(CAST({meta} AS JSON),payload),'$.milestones',CAST({milestones} AS JSON)),version=version+1 WHERE id='about' AND @xgsz_about_milestones AND (JSON_EXTRACT(payload,'$.milestones') IS NULL OR JSON_LENGTH(JSON_EXTRACT(payload,'$.milestones'))=0);",
+        "INSERT INTO site_metadata(name,content_value) SELECT 'about-milestones-20261110','complete' WHERE @xgsz_about_milestones;",
+        'COMMIT;'
+    ]
     return '\n\n'.join(statements) + '\n'
 
 
@@ -73,15 +111,19 @@ def main():
     parser = argparse.ArgumentParser(description='Generate the MySQL installer from the runtime schema and public seed content.')
     parser.add_argument('--check', action='store_true', help='Fail if init.sql does not match its source files.')
     arguments = parser.parse_args()
-    destination = ROOT / 'init.sql'
-    generated = generate()
-    if arguments.check:
-        if not destination.exists() or destination.read_text(encoding='utf-8') != generated:
-            parser.exit(1, 'init.sql is stale; run python scripts/generate-database-sql.py\n')
-        print('PASS: init.sql matches the runtime schema and initial content.')
-    else:
-        destination.write_text(generated, encoding='utf-8', newline='\n')
-        print('Generated init.sql.')
+    outputs = {
+        ROOT / 'init.sql': generate(),
+        ROOT / 'database/upgrades/20261109-business-directory.sql': generate_upgrade(),
+        ROOT / 'database/upgrades/20261110-about-milestones.sql': generate_milestones_upgrade()
+    }
+    for destination, generated in outputs.items():
+        if arguments.check:
+            if not destination.exists() or destination.read_text(encoding='utf-8') != generated:
+                parser.exit(1, f'{destination.name} is stale; run python scripts/generate-database-sql.py\n')
+        else:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(generated, encoding='utf-8', newline='\n')
+    print('PASS: SQL files match the runtime schema and initial content.' if arguments.check else 'Generated installation and upgrade SQL.')
 
 
 if __name__ == '__main__':

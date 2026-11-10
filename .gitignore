@@ -35,6 +35,7 @@ build/
 # Website runtime state; never commit databases or logs.
 data/
 .runtime/
+test-results/
 website-test.log
 website-build.log
 *.log

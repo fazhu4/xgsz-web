@@ -95,7 +95,7 @@ test('后台批量添加长文案与横竖图片后，官网各栏目自适应�
     const publicContent=await call('/public/content');const failures=[];
     for(const width of [320,360,768,1024,1440]){
       await visitor.setViewportSize({width,height:900});
-      for(const route of ['/','/#/products','/#/services','/#/partners','/#/about','/#/contact','/#/mini']){
+      for(const route of ['/','/#/products','/#/services','/#/partners','/#/about','/#/contact']){
         await visitor.goto(route);await expect(visitor.locator('#main')).toBeAttached();
         const key=route==='/'?'home':route.split('/').pop();
         await expect.poll(async()=>(await visitor.locator('h1').textContent()).replace(/\s/g,'')).toBe(publicContent.pages[key].heroTitle.replace(/\s/g,''));

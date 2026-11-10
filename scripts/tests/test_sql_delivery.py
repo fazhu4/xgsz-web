@@ -28,13 +28,14 @@ class SqlDeliveryTest(unittest.TestCase):
         self.assertTrue(inserts)
         self.assertTrue(all('WHERE @xgsz_initialize' in statement for statement in inserts))
 
-    def test_json_payloads_include_pages_products_services_and_empty_contacts(self):
+    def test_json_payloads_include_pages_products_services_and_company_contacts(self):
         documents = [json.loads(bytes.fromhex(encoded).decode('utf-8')) for encoded in re.findall(r"CONVERT\(X'([0-9a-f]+)' USING utf8mb4\)", self.sql)]
         self.assertTrue(any(document.get('name') == 'GPU 服务器整机' for document in documents))
         self.assertTrue(any(document.get('name') == '模型推理优化' for document in documents))
-        self.assertEqual(sum('heroTitle' in document for document in documents), 7)
+        self.assertEqual(sum('heroTitle' in document for document in documents), 6)
+        self.assertNotIn("'mini'", self.sql)
         settings = next(document for document in documents if 'wecomQr' in document)
-        self.assertEqual(settings['phone'], '')
+        self.assertEqual(settings['phone'], '18458055296')
         self.assertEqual(settings['email'], '')
         self.assertEqual(settings['wecomQr'], '')
 

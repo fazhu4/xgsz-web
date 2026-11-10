@@ -5,10 +5,8 @@
       "englishName": "XINGUANG DIGITAL",
       "logo": "/assets/xgsz-logo.jpg",
       "footerSlogan": "以芯为基，以光为引。\n让算力成为业务生长的力量。",
-      "footerNote": "服务器整机 · 国产算力 · 推理优化 · 全栈维保",
+      "footerNote": "服务器整机 · 本地化部署 · 推理优化 · 集群交付运维维保",
       "footerDisclaimer": "产品配置与服务方案以实际沟通为准",
-      "mobileTitle": "把芯光，装进口袋",
-      "mobileDesc": "产品与服务，移动端随时了解",
       "ctaTitle": "下一程算力增长，与芯光同行",
       "ctaDesc": "从一台服务器，到一套适合您的算力方案。",
       "ctaButton": "聊聊您的需求",
@@ -30,9 +28,9 @@
       "heroImage": "/assets/datacenter-hero.webp",
       "heroButton": "探索产品与方案",
       "heroConsult": "与技术团队聊聊",
-      "heroNote": "服务器整机 / 国产算力 / 推理优化",
-      "productsTitle": "算力有底座，业务有未来",
-      "productsDesc": "从通用计算到 AI 加速，找到与业务同频的算力产品。",
+      "heroNote": "服务器整机 / 本地化部署 / 推理优化 / 集群交付运维维保",
+      "productsTitle": "从整机到交付，找到合适的算力方案",
+      "productsDesc": "服务器整机、本地化部署、推理优化与集群保障，完整业务方向一站了解。",
       "servicesVisualTitle": "硬件有边界\n服务无间断",
       "servicesVisualDesc": "连接设备、模型与业务的每一环。",
       "servicesTitle": "让算力落地，让价值持续",
@@ -41,28 +39,28 @@
       "industriesDesc": "以场景为起点，让技术融入真实的业务。",
       "capabilities": [
         {
-          "icon": "server",
           "title": "服务器整机",
-          "desc": "为业务提供可靠底座",
-          "link": "#/products"
+          "desc": "面向计算、存储与 AI 任务",
+          "icon": "server",
+          "link": "#/products?solution=servers"
         },
         {
+          "title": "本地化部署",
+          "desc": "让模型与应用在本地运行",
           "icon": "layers",
-          "title": "国产算力",
-          "desc": "面向国产化建设",
-          "link": "#/products?category=domestic"
+          "link": "#/products?solution=deployment"
         },
         {
-          "icon": "activity",
           "title": "推理优化",
-          "desc": "释放模型应用潜能",
-          "link": "#/services"
+          "desc": "优化平台、产出与集群性能",
+          "icon": "activity",
+          "link": "#/products?solution=inference"
         },
         {
+          "title": "集群交付运维维保",
+          "desc": "覆盖集群、GPU 与液冷保障",
           "icon": "shield",
-          "title": "全栈维保",
-          "desc": "守护算力持续运行",
-          "link": "#/services"
+          "link": "#/products?solution=cluster"
         }
       ],
       "industries": [
@@ -98,9 +96,9 @@
     },
     "products": {
       "heroTitle": "为业务找到合适的算力",
-      "heroDesc": "通用计算、GPU 加速、国产生态，从您的实际应用出发。",
+      "heroDesc": "从服务器整机到本地化部署、推理优化与集群保障，按业务需求组合产品与服务。",
       "deliveryTitle": "不只选硬件，更关注如何落地",
-      "disclaimer": "整机外观为概念示意。暂无固定在售型号，具体品牌、配置、交付及适配范围经需求评估后确认。",
+      "disclaimer": "展示的型号与品牌用于方案沟通，具体配置、供货与适配范围以实际评估为准。",
       "steps": [
         {
           "title": "需求沟通",
@@ -117,6 +115,68 @@
         {
           "title": "持续支持",
           "desc": "按需衔接推理优化、扩容与维保服务。"
+        }
+      ],
+      "solutionsTitle": "产品与解决方案",
+      "solutionsDesc": "四个业务方向，从设备选型到部署优化与持续保障。",
+      "taobaoUrl": "https://www.taobao.com/",
+      "douyinUrl": "https://www.douyin.com/",
+      "solutionGroups": [
+        {
+          "key": "servers",
+          "title": "服务器整机",
+          "desc": "按计算、存储与 AI 任务选择适合的整机方案。",
+          "icon": "server",
+          "groups": [
+            {
+              "title": "通用服务器",
+              "items": "存储型服务器\n通算型服务器"
+            },
+            {
+              "title": "GPU 服务器",
+              "items": "5090\n4090\n5080\n5060 16G\nV100\nPRO 6000D\nPRO 5000\nPRO 6000"
+            },
+            {
+              "title": "国产算力",
+              "items": "中昊芯英\n昆仑芯\n曦望\n沐曦"
+            }
+          ]
+        },
+        {
+          "key": "deployment",
+          "title": "本地化部署",
+          "desc": "围绕设备交付、Token 输出与 Agent 应用规划本地部署。",
+          "icon": "layers",
+          "groups": [
+            {
+              "title": "部署与应用",
+              "items": "裸金属交付\n整体 Token 输出方案\n专业 Agent 工具"
+            }
+          ]
+        },
+        {
+          "key": "inference",
+          "title": "推理优化",
+          "desc": "围绕 Token 平台、推理产出和集群性能开展优化。",
+          "icon": "activity",
+          "groups": [
+            {
+              "title": "平台与性能",
+              "items": "Token 平台优化\n推理产出优化\n集群性能优化"
+            }
+          ]
+        },
+        {
+          "key": "cluster",
+          "title": "集群交付运维维保",
+          "desc": "覆盖集群交付、持续运维、GPU 与液冷维保。",
+          "icon": "shield",
+          "groups": [
+            {
+              "title": "交付与保障",
+              "items": "集群交付\n集群运维\n集群 GPU 维保\n液冷维保"
+            }
+          ]
         }
       ]
     },
@@ -233,6 +293,34 @@
           "title": "按项目配置人员与备件",
           "desc": "根据设备现状、业务重要性与交付要求，沟通驻场支持、备机备件及服务等级，形成适合项目的服务组合。"
         }
+      ],
+      "milestonesTitle": "项目动态",
+      "milestonesDesc": "了解项目交付、部署优化与持续服务的最新进展。",
+      "milestones": [
+        {
+          "date": "2026-11-10",
+          "tag": "体验优化",
+          "title": "官网品牌与浏览体验升级",
+          "desc": "完成首页与产品中心平台入口调整，更新公司品牌标识，并优化桌面端与移动端浏览体验。"
+        },
+        {
+          "date": "2026-11-09",
+          "tag": "内容更新",
+          "title": "四大业务方向完成上线",
+          "desc": "上线服务器整机、本地化部署、推理优化、集群交付运维维保四个业务方向，并补充服务器型号、国产算力与服务细则。"
+        },
+        {
+          "date": "2026-11-06",
+          "tag": "系统交付",
+          "title": "官网服务系统完成交付",
+          "desc": "完成官网前后台与数据库环境交付，公司介绍、产品能力和业务咨询可在线维护与展示。"
+        },
+        {
+          "date": "2026-11-05",
+          "tag": "项目进展",
+          "title": "公司官网展示版本完成",
+          "desc": "完成公司介绍、产品中心、技术服务、招商合作与联系咨询页面，形成从了解业务到提交需求的完整访问路径。"
+        }
       ]
     },
     "contact": {
@@ -242,15 +330,6 @@
       "desc": "整机配置、国产算力、模型推理优化与运维服务，欢迎直接来电或通过企业微信沟通。",
       "note": "也可以留下需求与联系方式，方便我们进一步了解您的项目。",
       "button": "填写业务需求"
-    },
-    "mini": {
-      "heroTitle": "算力服务\n也可以触手可及",
-      "heroDesc": "从产品浏览到需求整理，\n探索芯光数智的移动端体验。",
-      "homeTitle": "以芯聚力\n向光而行",
-      "homeDesc": "让每一份算力释放更大价值",
-      "homeNote": "从选型部署，到持续运维",
-      "servicesTitle": "算力服务，随时了解",
-      "servicesDesc": "从设备到应用的全流程支持。"
     }
   },
   "catalog": {

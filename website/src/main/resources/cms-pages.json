@@ -39,18 +39,6 @@
         "required": false
       },
       {
-        "key": "mobileTitle",
-        "label": "移动入口标题",
-        "type": "text",
-        "required": false
-      },
-      {
-        "key": "mobileDesc",
-        "label": "移动入口介绍",
-        "type": "text",
-        "required": false
-      },
-      {
         "key": "ctaTitle",
         "label": "通用咨询标题",
         "type": "text",
@@ -294,7 +282,7 @@
     ]
   },
   "products": {
-    "label": "产品页面",
+    "label": "产品与解决方案",
     "fields": [
       {
         "key": "heroTitle",
@@ -306,6 +294,30 @@
         "key": "heroDesc",
         "label": "页面介绍",
         "type": "text",
+        "required": false
+      },
+      {
+        "key": "solutionsTitle",
+        "label": "业务方向标题",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "solutionsDesc",
+        "label": "业务方向介绍",
+        "type": "textarea",
+        "required": false
+      },
+      {
+        "key": "taobaoUrl",
+        "label": "淘宝链接",
+        "type": "link",
+        "required": false
+      },
+      {
+        "key": "douyinUrl",
+        "label": "抖音链接",
+        "type": "link",
         "required": false
       },
       {
@@ -336,6 +348,56 @@
             "label": "步骤说明",
             "type": "textarea",
             "required": false
+          }
+        ]
+      },
+      {
+        "key": "solutionGroups",
+        "label": "业务方向",
+        "type": "list",
+        "fields": [
+          {
+            "key": "key",
+            "label": "入口标识（英文）",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "title",
+            "label": "业务方向名称",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "desc",
+            "label": "业务方向介绍",
+            "type": "textarea",
+            "required": false
+          },
+          {
+            "key": "icon",
+            "label": "图标名称",
+            "type": "text",
+            "required": false
+          },
+          {
+            "key": "groups",
+            "label": "细分分类",
+            "type": "list",
+            "fields": [
+              {
+                "key": "title",
+                "label": "分类名称",
+                "type": "text",
+                "required": true
+              },
+              {
+                "key": "items",
+                "label": "内容项目（每行一项）",
+                "type": "textarea",
+                "required": false
+              }
+            ]
           }
         ]
       }
@@ -608,6 +670,49 @@
             "required": false
           }
         ]
+      },
+      {
+        "key": "milestonesTitle",
+        "label": "项目动态标题",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "milestonesDesc",
+        "label": "项目动态介绍",
+        "type": "textarea",
+        "required": false
+      },
+      {
+        "key": "milestones",
+        "label": "项目动态",
+        "type": "list",
+        "fields": [
+          {
+            "key": "date",
+            "label": "时间",
+            "type": "text",
+            "required": false
+          },
+          {
+            "key": "tag",
+            "label": "动态类型",
+            "type": "text",
+            "required": false
+          },
+          {
+            "key": "title",
+            "label": "动态标题",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "desc",
+            "label": "动态内容",
+            "type": "textarea",
+            "required": false
+          }
+        ]
       }
     ]
   },
@@ -647,53 +752,6 @@
       {
         "key": "button",
         "label": "咨询按钮",
-        "type": "text",
-        "required": false
-      }
-    ]
-  },
-  "mini": {
-    "label": "移动端页面",
-    "fields": [
-      {
-        "key": "heroTitle",
-        "label": "页面标题",
-        "type": "textarea",
-        "required": true
-      },
-      {
-        "key": "heroDesc",
-        "label": "页面介绍",
-        "type": "textarea",
-        "required": false
-      },
-      {
-        "key": "homeTitle",
-        "label": "移动首页标题",
-        "type": "textarea",
-        "required": false
-      },
-      {
-        "key": "homeDesc",
-        "label": "移动首页介绍",
-        "type": "text",
-        "required": false
-      },
-      {
-        "key": "homeNote",
-        "label": "移动首页提示",
-        "type": "text",
-        "required": false
-      },
-      {
-        "key": "servicesTitle",
-        "label": "移动服务标题",
-        "type": "text",
-        "required": false
-      },
-      {
-        "key": "servicesDesc",
-        "label": "移动服务介绍",
         "type": "text",
         "required": false
       }
