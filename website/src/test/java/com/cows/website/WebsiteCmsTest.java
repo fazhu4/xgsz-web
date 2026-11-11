@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import java.util.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
@@ -101,5 +102,29 @@ class WebsiteCmsTest {
             .content("{\"name\":\"不能发布\",\"desc\":\"停用分类\",\"category\":\""+category.path("key").asText()+"\"}"))
             .andExpect(status().isBadRequest());
         assertFalse(read("/api/public/content").has("locations"));
+    }
+    @Test void systemStatusIsReadOnlyAndAvailableToAdministrators() throws Exception {
+        mvc.perform(get("/api/admin/system")).andExpect(status().isUnauthorized());
+        var data=json.readTree(mvc.perform(get("/api/admin/system").with(user("owner")))
+            .andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).path("data");
+        assertTrue(data.path("database").has("product"));
+        assertEquals(20,data.path("tables").size());
+        assertTrue(data.path("tables").toString().contains("site_page"));
+        assertTrue(data.path("checks").toString().contains("数据表结构"));
+        assertTrue(data.path("pages").size()>0);
+        assertFalse(data.toString().contains("password"));
+        assertFalse(data.toString().contains("XGSZ_DATABASE_PASSWORD"));
+    }
+    @Test void consoleSectionsCoverEveryEditablePageField() throws Exception {
+        var pages=json.readTree(getClass().getResourceAsStream("/cms-pages.json"));
+        var entries=pages.fields();
+        while(entries.hasNext()){
+            var entry=entries.next();
+            var fields=new LinkedHashSet<String>();
+            entry.getValue().path("fields").forEach(field->fields.add(field.path("key").asText()));
+            var covered=new LinkedHashSet<String>();
+            entry.getValue().path("sections").forEach(section->section.path("fields").forEach(field->covered.add(field.asText())));
+            assertEquals(fields,covered,entry.getKey()+" 页面的控制台分组字段不一致");
+        }
     }
 }

@@ -23,6 +23,7 @@ export async function loadContent(manager = false) { content = await api(manager
 export const getContent = () => content;
 export async function loadInquiries() { inquiries = await api('/admin/inquiries'); return inquiries; }
 export const getInquiries = () => inquiries;
+export async function loadSystem() { return api('/admin/system'); }
 export async function saveRecord(kind, record, fresh = false) { const saved = await api(`/admin/${kind}${fresh ? '' : `/${encodeURIComponent(record.id)}`}`, {method:fresh?'POST':'PUT',body:JSON.stringify(record)}); await loadContent(true); return saved; }
 export async function deleteRecord(kind, record) { await api(`/admin/${kind}/${encodeURIComponent(record.id)}?version=${record.version}`, {method:'DELETE'}); await loadContent(true); }
 export async function saveSettings(settings) { const saved = await api('/admin/settings',{method:'PUT',body:JSON.stringify(settings)}); content.settings = saved; return saved; }

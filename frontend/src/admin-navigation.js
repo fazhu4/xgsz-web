@@ -3,7 +3,7 @@ import './admin-navigation.css';
 
 const openGroups=new Set();
 const common=new Set(['overview','products','services','inquiries']);
-const system=new Set(['settings','catalog-admins']);
+const system=new Set(['settings','system','catalog-admins']);
 
 function groupFor(id){return common.has(id)?null:system.has(id)?'system':'display';}
 export function revealNavigation(section){const group=groupFor(section);if(group)openGroups.add(group);}
