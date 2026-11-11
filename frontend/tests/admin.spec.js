@@ -49,7 +49,7 @@ test('后台可处理官网咨询并将设置同步到页脚，文本不作为HT
   await page.getByRole('button', { name: '标记已处理' }).click();
   await expect(page.getByRole('row').filter({hasText:'端到端测试联系人'}).getByText('已处理', { exact: true })).toBeVisible();
   await page.locator('summary').filter({hasText:'系统设置'}).click();
-  await page.getByRole('link', { name: '站点设置', exact: true }).click();
+  await page.getByRole('link', { name: '联系方式', exact: true }).click();
   await page.getByLabel('联系邮箱').fill('demo@example.com');
   await page.getByLabel('联系地址').fill('<img src=x onerror=alert(1)>');
   await page.getByRole('button', { name: '保存设置' }).click();

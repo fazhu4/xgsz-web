@@ -1,6 +1,7 @@
 {
   "global": {
     "label": "品牌与页脚",
+    "adminVisible": false,
     "description": "品牌名称、Logo、页脚和全站通用文案；保存后影响所有页面。",
     "preview": "/",
     "sections": [
@@ -150,6 +151,7 @@
   },
   "home": {
     "label": "首页内容",
+    "adminVisible": false,
     "description": "首页首屏、业务入口、产品与服务区、行业场景。",
     "preview": "/",
     "sections": [
@@ -337,8 +339,9 @@
     ]
   },
   "products": {
-    "label": "产品与解决方案",
-    "description": "产品与解决方案页；包含四个业务方向、服务器分类内容和线上平台入口。",
+    "label": "业务方向与线上平台",
+    "description": "维护业务方向及细分分类，并填写淘宝、抖音线上平台入口。页面展示文案由项目统一维护。",
+    "adminFields": ["solutionGroups", "taobaoUrl", "douyinUrl"],
     "preview": "/#/products",
     "sections": [
       {
@@ -484,6 +487,7 @@
   },
   "services": {
     "label": "服务页面",
+    "adminVisible": false,
     "description": "技术服务页的页面标题和服务承诺。",
     "preview": "/#/services",
     "sections": [
@@ -525,6 +529,7 @@
   },
   "partners": {
     "label": "合作页面",
+    "adminVisible": false,
     "description": "招商合作页的页面标题、合作方向和邀请内容。",
     "preview": "/#/partners",
     "sections": [
@@ -594,6 +599,7 @@
   },
   "about": {
     "label": "公司介绍",
+    "adminVisible": false,
     "description": "关于我们页；项目动态、公司简介、核心业务、服务方式和工作理念。",
     "preview": "/#/about",
     "sections": [
@@ -858,6 +864,7 @@
   },
   "contact": {
     "label": "联系页面",
+    "adminVisible": false,
     "description": "联系我们页的页面标题、联系区文案和咨询按钮。",
     "preview": "/#/contact",
     "sections": [

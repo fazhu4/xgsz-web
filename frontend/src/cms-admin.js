@@ -29,8 +29,9 @@ export class CmsAdmin {
     document.addEventListener('input',event=>{if(event.target.id==='cms-search'){this.search=event.target.value;document.querySelector('#cms-rows').innerHTML=this.tableRows();}});
   }
   async definitions(){this.defs=await api('/admin/cms');return this.defs;}
-  links(){return [...Object.entries(this.defs.pages).map(([id,x])=>[`page-${id}`,'file',x.label]),...Object.entries(this.defs.modules).map(([id,x])=>[`catalog-${id}`,'box',x.label]),['media','file','图片素材']];}
-  accepts(section){return section==='media'||section.startsWith('page-')&&Object.hasOwn(this.defs.pages,section.slice(5))||section.startsWith('catalog-')&&Object.hasOwn(this.defs.modules,section.slice(8));}
+  pageDefinition(id){return Object.hasOwn(this.defs.pages,id)&&this.defs.pages[id].adminVisible!==false?this.defs.pages[id]:null;}
+  links(){return [...Object.entries(this.defs.pages).filter(([id])=>this.pageDefinition(id)).map(([id,x])=>[`page-${id}`,'file',x.label]),...Object.entries(this.defs.modules).map(([id,x])=>[`catalog-${id}`,'box',x.label]),['media','file','图片素材']];}
+  accepts(section){return section==='media'||section.startsWith('page-')&&Boolean(this.pageDefinition(section.slice(5)))||section.startsWith('catalog-')&&Object.hasOwn(this.defs.modules,section.slice(8));}
   async load(section){const sequence=(this.loadSequence||0)+1;this.loadSequence=sequence;let value;if(section.startsWith('page-'))value=await api(`/admin/pages/${section.slice(5)}`);else if(section.startsWith('catalog-'))value=await api(`/admin/catalog/${section.slice(8)}`);else if(section==='media')value=await api('/admin/media');if(sequence!==this.loadSequence)return false;this.section=section;this.search='';if(section.startsWith('page-'))this.page=value;else this.rows=value;return true;}
   definition(){return this.section.startsWith('page-')?this.defs.pages[this.section.slice(5)]:this.defs.modules[this.section.slice(8)];}
   hint(def,extra=''){const text=[def.hint,extra].filter(Boolean).join(' ');return text?`<p class="cms-field-hint">${esc(text)}</p>`:'';}
@@ -44,10 +45,12 @@ export class CmsAdmin {
     const type=def.type==='password'?'password':['number','money','latitude','longitude'].includes(def.type)?'number':'text';
     return `<div class="field" data-field="${esc(def.key)}"><label for="${uid}">${label}</label><input id="${uid}" name="${name}" type="${type}" data-cms-value value="${esc(value??(type==='number'?0:''))}" ${required} ${type==='number'?`step="${def.type==='number'?1:'any'}" ${['number','money'].includes(def.type)?'min="0"':''}`:'maxlength="1000"'} ${type==='password'?'autocomplete="new-password"':''}>${type==='password'?'<small>新增时至少12个字符；编辑时留空保留原密码。</small>':''}${this.hint(def)}</div>`;
   }
+  editableFields(def){const keys=Array.isArray(def.adminFields)?new Set(def.adminFields):null;return keys?def.fields.filter(field=>keys.has(field.key)):def.fields;}
   pageFieldSections(def,value){
+    const editableFields=this.editableFields(def),editableKeys=new Set(editableFields.map(field=>field.key));
     const sections=Array.isArray(def.sections)?def.sections:[];
-    if(!sections.length)return this.fields(def.fields,value);
-    const fields=new Map(def.fields.map(field=>[field.key,field]));
+    if(!sections.length)return this.fields(editableFields,value);
+    const fields=new Map(editableFields.map(field=>[field.key,field]));
     const used=new Set();
     const html=sections.map((section,index)=>{
       const rows=(section.fields||[]).map(key=>fields.get(key)).filter(Boolean);
@@ -55,13 +58,14 @@ export class CmsAdmin {
       if(!rows.length)return '';
       return `<div class="cms-section-head" id="cms-section-${index}"><h3>${esc(section.title)}</h3>${section.desc?`<p>${esc(section.desc)}</p>`:''}</div>${rows.map(field=>this.field(field,value[field.key]??'',field.key)).join('')}`;
     }).join('');
-    const rest=def.fields.filter(field=>!used.has(field.key));
+    const rest=editableFields.filter(field=>!used.has(field.key)&&editableKeys.has(field.key));
     return html+(rest.length?`<div class="cms-section-head"><h3>其他字段</h3><p>未归入手工分组的字段，仍会保存并在官网使用。</p></div>${rest.map(field=>this.field(field,value[field.key]??'',field.key)).join('')}`:'');
   }
   pageSectionNav(def){
-    const sections=(Array.isArray(def.sections)?def.sections:[]).filter(section=>(section.fields||[]).length);
+    const editableKeys=new Set(this.editableFields(def).map(field=>field.key));
+    const sections=(Array.isArray(def.sections)?def.sections:[]).map((section,index)=>({section,index})).filter(({section})=>(section.fields||[]).some(key=>editableKeys.has(key)));
     if(sections.length<2)return '';
-    return `<nav class="cms-section-nav" aria-label="页面内容区块"><span>页面结构</span>${sections.map((section,index)=>`<button type="button" data-cms-section="cms-section-${index}">${esc(section.title)}</button>`).join('')}</nav>`;
+    return `<nav class="cms-section-nav" aria-label="页面内容区块"><span>页面结构</span>${sections.map(({section,index})=>`<button type="button" data-cms-section="cms-section-${index}">${esc(section.title)}</button>`).join('')}</nav>`;
   }
   repeatRow(def,value,path,i){const summary=def.fields.filter(field=>field.key!=='key').map(field=>value[field.key]).find(value=>String(value||'').trim());return `<details class="cms-repeat-row" data-repeat-row ${summary?'':'open'}><summary><span>${esc(summary||`新增${def.label}`)}</span><small>第 ${i+1} 项</small><span class="cms-repeat-chevron" aria-hidden="true">⌄</span></summary><div class="cms-repeat-body"><div class="cms-repeat-actions"><span>调整此内容</span><button type="button" class="link-button" data-cms-up aria-label="上移此项">上移</button><button type="button" class="link-button" data-cms-down aria-label="下移此项">下移</button><button type="button" class="danger-text" data-cms-remove aria-label="移除此项">移除</button></div><div class="cms-repeat-fields">${def.fields.map(field=>this.field(field,value[field.key]??'',`${path}.${i}.${field.key}`)).join('')}</div></div></details>`;}
   fields(fields,value,prefix=''){return fields.map(def=>this.field(def,value[def.key]??'',prefix?`${prefix}.${def.key}`:def.key)).join('');}
@@ -72,7 +76,7 @@ export class CmsAdmin {
     if(def.type==='products'){data[def.key]=[...block.querySelectorAll('input:checked')].map(x=>Number(x.dataset.productId));continue;}
     const input=block.querySelector('[data-cms-value]');data[def.key]=def.type==='checkbox'?input.checked:['number','money','latitude','longitude'].includes(def.type)?Number(input.value):input.value;
   }return data;}
-  render(){if(this.section==='media')return `<section class="panel"><div class="panel-head"><h2>图片素材</h2></div><div class="settings-body"><p>上传后可在产品、轮播、品牌和页面编辑中使用。支持5MB以内的 PNG、JPG、BMP。</p>${imageField('素材图片','media','')}<div class="cms-media-grid">${this.rows.map(x=>`<figure><img src="${esc(x.url)}" alt="${esc(x.name)}" loading="lazy"><figcaption>${esc(x.name)}</figcaption><button type="button" class="secondary" data-copy-url="${esc(x.url)}">复制图片地址</button></figure>`).join('')}</div></div></section>`;
+  render(){if(this.section==='media')return `<section class="panel"><div class="panel-head"><h2>图片素材</h2></div><div class="settings-body"><p>上传后可在产品、轮播、品牌和业务模块中使用。支持5MB以内的 PNG、JPG、BMP。</p>${imageField('素材图片','media','')}<div class="cms-media-grid">${this.rows.map(x=>`<figure><img src="${esc(x.url)}" alt="${esc(x.name)}" loading="lazy"><figcaption>${esc(x.name)}</figcaption><button type="button" class="secondary" data-copy-url="${esc(x.url)}">复制图片地址</button></figure>`).join('')}</div></div></section>`;
     const def=this.definition();
     if(this.section.startsWith('page-'))return `<form class="panel cms-page-form" id="cms-page-form" data-section="${esc(this.section)}" data-version="${this.page.version}"><div class="panel-head"><div><h2>${esc(def.label)}</h2>${def.description?`<p class="cms-page-description">${esc(def.description)}</p>`:''}</div><div class="cms-page-actions">${def.preview?`<a class="secondary" href="${esc(def.preview)}" target="_blank" rel="noopener">查看官网</a>`:''}<button class="primary" type="submit">保存页面</button></div></div>${this.pageSectionNav(def)}<div class="cms-fields">${this.pageFieldSections(def,this.page)}</div><div class="cms-save-bar"><p class="form-error" role="alert"></p><button class="primary" type="submit">保存页面</button></div></form>`;
     return `<section class="panel"><div class="list-toolbar"><div><h2>${esc(def.label)}</h2><p>保存后刷新官网即可查看更新。</p></div><button type="button" class="primary" data-cms-new>新增${esc(def.label)}</button></div><div class="search-row"><label><input id="cms-search" aria-label="搜索记录" placeholder="搜索名称或说明"></label><span>共 ${this.rows.length} 条</span></div><div class="table-scroll" role="region" aria-label="${esc(def.label)}列表" tabindex="0"><table><thead><tr><th>内容</th><th>说明 / 状态</th><th>操作</th></tr></thead><tbody id="cms-rows">${this.tableRows()}</tbody></table></div></section>`;
@@ -94,7 +98,7 @@ export class CmsAdmin {
   }
   refreshRepeatLabels(container){[...container.children].filter(row=>row.matches('[data-repeat-row]')).forEach((row,index)=>{const label=row.querySelector(':scope > summary small');if(label)label.textContent=`第 ${index+1} 项`;});}
   async submit(event){const form=event.target;if(!['cms-page-form','cms-record-form'].includes(form.id))return;event.preventDefault();if(form.dataset.saving||form.dataset.uploading)return;
-    const section=form.dataset.section,fields=this.definition().fields;const value=this.read(fields,form.querySelector('.cms-fields'));value.version=Number(form.dataset.version);
+    const section=form.dataset.section,definition=this.definition(),fields=form.id==='cms-page-form'?this.editableFields(definition):definition.fields;const value=form.id==='cms-page-form'?{...this.page,...this.read(fields,form.querySelector('.cms-fields'))}:this.read(fields,form.querySelector('.cms-fields'));value.version=Number(form.dataset.version);
     form.dataset.saving='true';form.querySelectorAll('button,input,textarea,select').forEach(x=>x.disabled=true);
     try {const path=form.id==='cms-page-form'?`/admin/pages/${section.slice(5)}`:`/admin/catalog/${section.slice(8)}${form.dataset.id?'/'+form.dataset.id:''}`;
       const result=await api(path,{method:form.id==='cms-record-form'&&!form.dataset.id?'POST':'PUT',body:JSON.stringify(value)});

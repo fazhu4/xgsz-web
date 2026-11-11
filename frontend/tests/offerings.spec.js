@@ -65,9 +65,9 @@ test('首页与产品中心完整展示四个业务方向及细分能力，入�
   await page.goto('/#/products');await page.screenshot({path:'../.runtime/optimization-20261109/products-mobile.png',fullPage:true});
 });
 
-test('控制台可维护嵌套业务分类、线上链接和项目时间线并同步官网',async({page,context})=>{
+test('控制台可维护嵌套业务分类和线上链接并同步官网',async({page,context})=>{
   await manager(page);const call=await client(page);
-  const originalProducts=await call('/admin/pages/products'),originalAbout=await call('/admin/pages/about');
+  const originalProducts=await call('/admin/pages/products');
   const visitor=await context.newPage();
   const marker=`-${Date.now()}`;
   try{
@@ -90,27 +90,15 @@ test('控制台可维护嵌套业务分类、线上链接和项目时间线并�
     await expect(visitor.getByRole('link',{name:'淘宝入口',exact:true})).toHaveAttribute('href','https://www.taobao.com/?from=company');
     await visitor.goto('/#/products?solution=R%26D');
     await expect(visitor.locator('[id="offering-R%26D"]')).toBeVisible();
-    await page.goto('/admin.html#/page-about');
-    await page.getByRole('button',{name:'添加项目动态',exact:true}).click();
-    const milestone=page.locator('[data-repeater][data-path="milestones"] [data-repeat-row]').last();
-    await milestone.getByLabel('时间',{exact:true}).fill('2026-11-12');
-    await milestone.getByLabel('动态标题',{exact:true}).fill(`测试环境交付记录${marker}`);
-    await milestone.getByLabel('动态内容',{exact:true}).fill('用于验证后台动态同步的测试内容，不作为实际交付案例。');
-    await page.getByRole('button',{name:'保存页面',exact:true}).click();
-    await expect(page.getByRole('status')).toContainText('页面已保存');
-    await visitor.goto('/#/about');
-    await expect(visitor.locator('.about-project-feature').getByRole('heading',{name:`测试环境交付记录${marker}`,exact:true})).toBeVisible();
-    await visitor.locator('.about-projects').screenshot({path:'../.runtime/optimization-20261109/about-projects-desktop.png'});
     for(const width of [320,768,1440]){
       await visitor.setViewportSize({width,height:900});
-      for(const route of ['/products','/about']){
+      for(const route of ['/products']){
         await visitor.goto('/#'+route);await expect(visitor.locator('h1')).toBeVisible();
         expect(await visitor.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
       }
     }
   }finally{
     const currentProducts=await call('/admin/pages/products');await call('/admin/pages/products','PUT',{...originalProducts,version:currentProducts.version});
-    const currentAbout=await call('/admin/pages/about');await call('/admin/pages/about','PUT',{...originalAbout,version:currentAbout.version});
     await visitor.close();
   }
 });

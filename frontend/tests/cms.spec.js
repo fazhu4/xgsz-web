@@ -1,23 +1,16 @@
 import { test,expect } from '@playwright/test';
 import { manager } from './support.js';
 
-test('后台修改首页和公司介绍后刷新官网显示数据库内容',async({page})=>{
-  await manager(page);
-  await page.goto('/admin.html#/page-home');
-  await page.getByLabel('首页主标题',{exact:true}).fill('从后台更新的首页\n内容保存在数据库');
-  await page.getByRole('button',{name:'保存页面',exact:true}).click();
-  await expect(page.getByRole('status')).toContainText('页面已保存');
-  await page.reload();await expect(page.getByLabel('首页主标题',{exact:true})).toHaveValue('从后台更新的首页\n内容保存在数据库');
-  await page.goto('/');await expect(page.getByRole('heading',{name:'从后台更新的首页 内容保存在数据库'})).toBeVisible();
-  await page.goto('/admin.html#/page-about');await page.getByLabel('公司简介导语',{exact:true}).fill('这是从管理后台保存的公司介绍。');
-  await page.getByRole('button',{name:'保存页面',exact:true}).click();await expect(page.getByRole('status')).toContainText('页面已保存');
-  await page.goto('/#/about');await expect(page.getByText('这是从管理后台保存的公司介绍。',{exact:true})).toBeVisible();
-  // Restore shared seeded text for the existing navigation suite.
-  await page.goto('/admin.html#/page-home');await page.getByLabel('首页主标题',{exact:true}).fill('让每一份算力\n释放更大价值');await page.getByRole('button',{name:'保存页面',exact:true}).click();await expect(page.getByRole('status')).toContainText('页面已保存');
-});
+async function client(page){
+  const state=(await(await page.request.get('/api/auth/session')).json()).data;
+  return async(path,method='GET',data)=>{
+    const response=await page.request.fetch(`/api${path}`,{method,headers:{'X-CSRF-TOKEN':state.csrf},...(data?{data}:{})});
+    expect(response.ok()).toBe(true);return (await response.json()).data;
+  };
+}
 
 test('新增分类可用于产品并在官网筛选，图片上传后真实展示',async({page})=>{
-  await manager(page);await page.goto('/admin.html#/catalog-categories');
+  await manager(page);const call=await client(page);await page.goto('/admin.html#/catalog-categories');
   await page.getByRole('button',{name:'新增产品分类',exact:true}).click();
   await page.getByLabel('分类名称',{exact:true}).fill('边缘服务器');await page.getByRole('button',{name:'保存记录',exact:true}).click();
   await expect(page.getByRole('row').filter({hasText:'边缘服务器'})).toBeVisible();
@@ -31,7 +24,11 @@ test('新增分类可用于产品并在官网筛选，图片上传后真实展�
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goto('/#/products');await page.getByRole('tab',{name:'边缘服务器',exact:true}).click();
   await expect(page.getByRole('heading',{name:'动态分类测试整机',exact:true})).toBeVisible();
-  await expect(page.getByAltText('动态分类测试整机',{exact:true})).toBeVisible();
+  await expect(page.getByAltText('动态分类测试整机产品图',{exact:true})).toBeVisible();
+  const product=(await call('/admin/content')).products.find(row=>row.name==='动态分类测试整机');
+  if(product)await call(`/admin/products/${product.id}?version=${product.version}`,'DELETE');
+  const category=(await call('/admin/catalog/categories')).find(row=>row.name==='边缘服务器');
+  if(category)await call(`/admin/catalog/categories/${category.id}?version=${category.version}`,'DELETE');
 });
 
 test('招商内容和品牌证书从原后端模块保存并在官网显示',async({page})=>{
@@ -45,24 +42,32 @@ test('招商内容和品牌证书从原后端模块保存并在官网显示',asy
   await page.goto('/');await expect(page.getByText('数据库测试品牌',{exact:true})).toBeVisible();
 });
 
-test('快速切换栏目不混入旧响应，页面保存冲突保留输入',async({page,context})=>{
-  await manager(page);await page.goto('/admin.html#/page-services');
-  let release;const pending=new Promise(resolve=>{release=resolve;});
-  await page.route('**/api/admin/pages/home',async route=>{await pending;await route.continue();});
-  await page.getByRole('link',{name:'首页内容',exact:true}).click();
-  await page.getByRole('link',{name:'公司介绍',exact:true}).click();
-  await expect(page.getByLabel('公司简介标题',{exact:true})).toBeVisible();release();
-  await expect(page.getByLabel('公司简介标题',{exact:true})).toHaveValue('连接算力建设\n与持续运行');
-  const other=await context.newPage();await other.goto('/admin.html#/page-about');
-  await other.getByLabel('公司简介标题',{exact:true}).fill('另一页面先保存');await other.getByRole('button',{name:'保存页面',exact:true}).click();
-  await expect(other.getByRole('status')).toContainText('页面已保存');
-  await page.getByLabel('公司简介标题',{exact:true}).fill('保留我的旧版本输入');await page.getByRole('button',{name:'保存页面',exact:true}).click();
-  await expect(page.locator('.cms-save-bar').getByRole('alert')).toContainText('已被其他页面修改');
-  await expect(page.getByLabel('公司简介标题',{exact:true})).toHaveValue('保留我的旧版本输入');
+test('业务模块页面保存冲突时保留输入',async({page,context})=>{
+  await manager(page);await page.goto('/admin.html#/page-products');
+  const originalTaobao=await page.getByLabel('淘宝链接',{exact:true}).inputValue();
+  const originalDouyin=await page.getByLabel('抖音链接',{exact:true}).inputValue();
+  const other=await context.newPage();
+  try{
+    await other.goto('/admin.html#/page-products');
+    await other.getByLabel('抖音链接',{exact:true}).fill('https://www.douyin.com/user/admin-conflict-test');
+    await other.getByRole('button',{name:'保存页面',exact:true}).click();
+    await expect(other.getByRole('status')).toContainText('页面已保存');
+    await page.getByLabel('淘宝链接',{exact:true}).fill('https://shop.example.com/admin-conflict-test');
+    await page.getByRole('button',{name:'保存页面',exact:true}).click();
+    await expect(page.locator('.cms-save-bar').getByRole('alert')).toContainText('已被其他页面修改');
+    await expect(page.getByLabel('淘宝链接',{exact:true})).toHaveValue('https://shop.example.com/admin-conflict-test');
+  }finally{
+    await other.close();
+    await page.reload();
+    await page.getByLabel('淘宝链接',{exact:true}).fill(originalTaobao);
+    await page.getByLabel('抖音链接',{exact:true}).fill(originalDouyin);
+    await page.getByRole('button',{name:'保存页面',exact:true}).click();
+    await expect(page.getByRole('status')).toContainText('页面已保存');
+  }
 });
 
 test('分类名称按文本显示，产品金额支持小数',async({page})=>{
-  await manager(page);await page.goto('/admin.html#/catalog-categories');await page.getByRole('button',{name:'新增产品分类',exact:true}).click();
+  await manager(page);const call=await client(page);await page.goto('/admin.html#/catalog-categories');await page.getByRole('button',{name:'新增产品分类',exact:true}).click();
   await page.getByLabel('分类名称',{exact:true}).fill('</option></select><img src=x onerror=alert(1)>');
   await page.getByRole('button',{name:'保存记录',exact:true}).click();await expect(page.getByRole('status')).toContainText('内容已保存');
   await page.goto('/admin.html#/products');await page.getByRole('button',{name:'新增产品',exact:true}).click();
@@ -72,4 +77,8 @@ test('分类名称按文本显示，产品金额支持小数',async({page})=>{
   await page.getByRole('button',{name:'保存产品',exact:true}).click();await expect(page.getByRole('row').filter({hasText:'小数金额测试'})).toBeVisible();
   await page.getByRole('row').filter({hasText:'小数金额测试'}).getByRole('button',{name:'编辑',exact:true}).click();
   await expect(page.getByLabel('销售价格')).toHaveValue('12.5');
+  const product=(await call('/admin/content')).products.find(row=>row.name==='小数金额测试');
+  if(product)await call(`/admin/products/${product.id}?version=${product.version}`,'DELETE');
+  const category=(await call('/admin/catalog/categories')).find(row=>row.name==='</option></select><img src=x onerror=alert(1)>');
+  if(category)await call(`/admin/catalog/categories/${category.id}?version=${category.version}`,'DELETE');
 });

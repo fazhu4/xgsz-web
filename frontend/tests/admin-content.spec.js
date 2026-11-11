@@ -2,14 +2,15 @@ import { test, expect } from '@playwright/test';
 import { manager } from './support.js';
 test.beforeEach(async ({page}) => manager(page));
 
-test('普通 HTTP 环境可打开产品和页面编辑表单',async({page})=>{
+test('普通 HTTP 环境可打开产品和业务模块编辑表单',async({page})=>{
   await page.addInitScript(()=>Object.defineProperty(crypto,'randomUUID',{value:undefined,configurable:true}));
   await page.goto('/admin.html#/products');
   await page.getByRole('button',{name:'新增产品',exact:true}).click();
   await expect(page.getByLabel('产品名称')).toBeVisible();
   await page.getByRole('button',{name:'取消',exact:true}).click();
-  await page.goto('/admin.html#/page-home');
-  await expect(page.getByLabel('首页主标题',{exact:true})).toBeVisible();
+  await page.goto('/admin.html#/page-products');
+  await expect(page.getByLabel('淘宝链接',{exact:true})).toBeVisible();
+  await expect(page.getByLabel('页面标题',{exact:true})).toHaveCount(0);
 });
 
 test('含特殊字符的产品名称保持原文，新增服务在官网技术服务页展示', async ({ page }) => {

@@ -28,6 +28,10 @@ class WebsiteCmsTest {
             mvc.perform(put("/api/admin/catalog/"+kind+"/1").with(user("owner")).with(csrf()).contentType("application/json").content("{}")).andExpect(status().isNotFound());
             mvc.perform(delete("/api/admin/catalog/"+kind+"/1?version=1").with(user("owner")).with(csrf())).andExpect(status().isNotFound());
         }
+        assertEquals(Set.of("products"),fieldNames(read("/api/admin/cms").path("pages")));
+    }
+    Set<String> fieldNames(JsonNode object) {
+        var names=new LinkedHashSet<String>();object.fieldNames().forEachRemaining(names::add);return names;
     }
     JsonNode read(String path) throws Exception {
         return json.readTree(mvc.perform(get(path).with(user("owner"))).andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).path("data");
@@ -54,15 +58,29 @@ class WebsiteCmsTest {
         mvc.perform(delete("/api/admin/products/"+product.path("id").asText()+"?version=1").with(user("owner")).with(csrf())).andExpect(status().isOk());
         mvc.perform(delete("/api/admin/catalog/categories/"+id+"?version=2").with(user("owner")).with(csrf())).andExpect(status().isOk());
     }
-    @Test void publicPageCopyIsEditableAndVersioned() throws Exception {
-        JsonNode home=read("/api/admin/pages/home");
-        var value=(com.fasterxml.jackson.databind.node.ObjectNode)home.deepCopy();
-        value.put("heroTitle","数据库里的首页标题");
-        mvc.perform(put("/api/admin/pages/home").with(user("owner")).with(csrf()).contentType("application/json").content(json.writeValueAsString(value)))
-            .andExpect(status().isOk());
-        mvc.perform(get("/api/public/content")).andExpect(jsonPath("$.data.pages.home.heroTitle").value("数据库里的首页标题"));
-        mvc.perform(put("/api/admin/pages/home").with(user("owner")).with(csrf()).contentType("application/json").content(json.writeValueAsString(value)))
-            .andExpect(status().isConflict());
+    @Test void onlyBusinessPageCopyIsEditableFromConsole() throws Exception {
+        var content=read("/api/public/content");
+        for(String key:List.of("global","home","services","partners","about","contact")) {
+            assertTrue(content.path("pages").has(key));
+            mvc.perform(get("/api/admin/pages/"+key).with(user("owner"))).andExpect(status().isNotFound());
+            mvc.perform(put("/api/admin/pages/"+key).with(user("owner")).with(csrf()).contentType("application/json").content("{}"))
+                .andExpect(status().isNotFound());
+        }
+        var product=read("/api/admin/pages/products");
+        var value=(com.fasterxml.jackson.databind.node.ObjectNode)product.deepCopy();
+        String original=value.path("taobaoUrl").asText();
+        value.put("taobaoUrl","https://shop.example.com/console-test");
+        try {
+            mvc.perform(put("/api/admin/pages/products").with(user("owner")).with(csrf()).contentType("application/json").content(json.writeValueAsString(value)))
+                .andExpect(status().isOk());
+            mvc.perform(get("/api/public/content")).andExpect(jsonPath("$.data.pages.products.taobaoUrl").value("https://shop.example.com/console-test"));
+        } finally {
+            var latest=read("/api/admin/pages/products");
+            var restore=(com.fasterxml.jackson.databind.node.ObjectNode)latest.deepCopy();
+            restore.put("taobaoUrl",original);
+            mvc.perform(put("/api/admin/pages/products").with(user("owner")).with(csrf()).contentType("application/json").content(json.writeValueAsString(restore)))
+                .andExpect(status().isOk());
+        }
     }
     @Test void originalBusinessModulesRoundTripWithoutPublishingPrivateRecords() throws Exception {
         for(var pair: new String[][]{
@@ -115,16 +133,14 @@ class WebsiteCmsTest {
         assertFalse(data.toString().contains("password"));
         assertFalse(data.toString().contains("XGSZ_DATABASE_PASSWORD"));
     }
-    @Test void consoleSectionsCoverEveryEditablePageField() throws Exception {
+    @Test void consoleSectionsCoverBusinessPageFields() throws Exception {
         var pages=json.readTree(getClass().getResourceAsStream("/cms-pages.json"));
-        var entries=pages.fields();
-        while(entries.hasNext()){
-            var entry=entries.next();
-            var fields=new LinkedHashSet<String>();
-            entry.getValue().path("fields").forEach(field->fields.add(field.path("key").asText()));
-            var covered=new LinkedHashSet<String>();
-            entry.getValue().path("sections").forEach(section->section.path("fields").forEach(field->covered.add(field.asText())));
-            assertEquals(fields,covered,entry.getKey()+" 页面的控制台分组字段不一致");
-        }
+        var definition=pages.path("products");
+        var editable=new LinkedHashSet<String>();definition.path("adminFields").forEach(field->editable.add(field.asText()));
+        var fields=new LinkedHashSet<String>();definition.path("fields").forEach(field->fields.add(field.path("key").asText()));
+        var covered=new LinkedHashSet<String>();
+        definition.path("sections").forEach(section->section.path("fields").forEach(field->{if(editable.contains(field.asText()))covered.add(field.asText());}));
+        assertTrue(fields.containsAll(editable));
+        assertEquals(editable,covered,"业务页面的控制台分组字段不一致");
     }
 }

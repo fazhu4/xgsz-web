@@ -21,7 +21,7 @@ export function renderNavigation({links,section,icon,pending}){
     const active=rows.some(([key])=>key===section);
     let children=rows.map(renderLink).join('');
     if(id==='display'){
-      children=`<span class="admin-nav-subheading">页面文案</span>${rows.filter(([key])=>key.startsWith('page-')).map(renderLink).join('')}<span class="admin-nav-subheading">展示栏目与素材</span>${rows.filter(([key])=>!key.startsWith('page-')).map(renderLink).join('')}`;
+      children=`<span class="admin-nav-subheading">业务模块与线上平台</span>${rows.filter(([key])=>key.startsWith('page-')).map(renderLink).join('')}<span class="admin-nav-subheading">内容模块与素材</span>${rows.filter(([key])=>!key.startsWith('page-')).map(renderLink).join('')}`;
     }
     return `<details class="admin-nav-group" data-nav-group="${id}" ${openGroups.has(id)?'open':''}><summary ${active?'data-active="true"':''}>${icon(symbol)}<span>${label}</span><svg class="admin-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></summary><div class="admin-nav-children">${children}</div></details>`;
   };

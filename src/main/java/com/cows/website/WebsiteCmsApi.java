@@ -18,6 +18,6 @@ public class WebsiteCmsApi {
     Object create(@PathVariable String kind,@RequestBody Map<String,Object> value) throws Exception{checkModule(kind);return BaseResponse.success(catalog.save(kind,null,value));}
     @PutMapping("/catalog/{kind}/{id}") Object save(@PathVariable String kind,@PathVariable int id,@RequestBody Map<String,Object> value) throws Exception{checkModule(kind);return BaseResponse.success(catalog.save(kind,id,value));}
     @DeleteMapping("/catalog/{kind}/{id}") Object delete(@PathVariable String kind,@PathVariable int id,@RequestParam long version){checkModule(kind);catalog.delete(kind,id,version);return BaseResponse.success();}
-    @GetMapping("/pages/{key}") Object page(@PathVariable String key){return BaseResponse.success(pages.get(key));}
-    @PutMapping("/pages/{key}") Object page(@PathVariable String key,@RequestBody Map<String,Object> value) throws Exception{return BaseResponse.success(pages.save(key,value));}
+    @GetMapping("/pages/{key}") Object page(@PathVariable String key){return BaseResponse.success(pages.adminGet(key));}
+    @PutMapping("/pages/{key}") Object page(@PathVariable String key,@RequestBody Map<String,Object> value) throws Exception{return BaseResponse.success(pages.adminSave(key,value));}
 }

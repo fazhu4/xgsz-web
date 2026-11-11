@@ -37,7 +37,7 @@ class WebsitePageEvolutionTest {
         assertFalse(json.readTree(db.queryForObject("SELECT payload FROM site_page WHERE id='products'",String.class)).has("solutionGroups"));
     }
 
-    @Test void timelineAndNestedOfferingsAreEditableAndUnsafePlatformLinksAreRejected() throws Exception {
+    @Test void nestedOfferingsAreEditableAndPageCopyIsReadOnlyFromConsole() throws Exception {
         var products=(ObjectNode)json.valueToTree(pages.get("products"));
         products.put("taobaoUrl","javascript:alert(1)");
         mvc.perform(put("/api/admin/pages/products").with(user("owner")).with(csrf()).contentType("application/json").content(products.toString())).andExpect(status().isBadRequest());
@@ -47,9 +47,8 @@ class WebsitePageEvolutionTest {
         mvc.perform(put("/api/admin/pages/products").with(user("owner")).with(csrf()).contentType("application/json").content(products.toString())).andExpect(status().isOk());
         mvc.perform(get("/api/public/content")).andExpect(jsonPath("$.data.pages.products.solutionGroups[1].groups[0].items").value("裸金属交付\n后台新增部署能力"));
         var about=(ObjectNode)json.valueToTree(pages.get("about"));
-        about.putArray("milestones").addObject().put("date","2026-11").put("tag","测试").put("title","测试用交付动态").put("desc","只在独立测试事务内验证公开展示");
-        mvc.perform(put("/api/admin/pages/about").with(user("owner")).with(csrf()).contentType("application/json").content(about.toString())).andExpect(status().isOk());
-        mvc.perform(get("/api/public/content")).andExpect(jsonPath("$.data.pages.about.milestones[0].title").value("测试用交付动态"));
+        mvc.perform(put("/api/admin/pages/about").with(user("owner")).with(csrf()).contentType("application/json").content(about.toString())).andExpect(status().isNotFound());
+        mvc.perform(get("/api/public/content")).andExpect(jsonPath("$.data.pages.about.heroTitle").exists());
     }
 
     @Test void suppliedPhoneIsInitialContentAndLaterChangesSurviveRestartSeeding() throws Exception {
