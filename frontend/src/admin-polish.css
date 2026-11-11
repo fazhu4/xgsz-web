@@ -50,6 +50,11 @@
 .system-checks .warn span{color:#a2762e;border-color:#ecd6ae}
 .system-checks b{font-size:13px;font-weight:600;color:#35545f;white-space:nowrap}
 .system-checks small{font-size:12px;color:#7e949d;overflow-wrap:anywhere}
+.system-config{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:24px}
+.system-config>div{border:1px solid #e1eaed;border-radius:6px;padding:15px 16px;background:#fff;min-width:0}
+.system-config span{display:block;font-size:12px;color:#7a9099}
+.system-config b{display:block;font-size:14px;font-weight:600;color:#2c4b57;margin:7px 0 6px}
+.system-config small{display:block;font-size:12px;line-height:1.7;color:#7e949d;overflow-wrap:anywhere}
 .system-columns{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start}
 .system-columns h3{font-size:15px;font-weight:600;color:#2c4b57;margin:0 0 12px}
 .system-columns section>h3:not(:first-child){margin-top:24px}
@@ -63,5 +68,5 @@
 .system-list li:first-child{border-top:0}
 .system-list li span,.system-list li small{overflow-wrap:anywhere}
 .system-list.compact li small{color:#8ba0a8}
-@media(max-width:1100px){.system-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.system-columns{grid-template-columns:1fr}}
+@media(max-width:1100px){.system-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.system-config{grid-template-columns:1fr}.system-columns{grid-template-columns:1fr}}
 @media(max-width:700px){.system-cards{grid-template-columns:1fr}.system-panel .panel-head{flex-wrap:wrap}.system-checks>div{flex-wrap:wrap;gap:8px}.system-checks small{width:100%}.system-columns{gap:18px}.system-table-scroll{max-height:320px}}
