@@ -52,3 +52,6 @@ backups/
 
 __pycache__/
 *.py[cod]
+
+# WeChat DevTools local project settings
+miniprogram/project.private.config.json
