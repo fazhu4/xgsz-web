@@ -51,6 +51,16 @@ SOURCE database/upgrades/20261110-about-milestones.sql;
 
 该脚本只在“关于我们”的项目动态为空时填入四条可核实的官网建设记录，并补充动态区标题；已有动态、其他页面文案、产品、管理员和咨询内容不会被覆盖。包含一次性执行标记，重复执行不会再次写入。
 
+## 公司名称更正
+
+已有实例如仍显示旧名称“芯光数智”，请先备份数据库，再执行：
+
+```sql
+SOURCE database/upgrades/20261110-brand-name.sql;
+```
+
+该脚本将页面文案、产品资料和可编辑展示内容中的旧名称统一替换为“芯光智数”，不会修改管理员账号、密码、客户咨询或业务数据。脚本带一次性执行标记，重复执行不会再次覆盖后续编辑。新部署直接导入 `init.sql` 即已使用新名称，无需执行此脚本。
+
 ## 数据分布
 
 | 表 | 用途 |
@@ -69,7 +79,7 @@ SOURCE database/upgrades/20261110-about-milestones.sql;
 
 ## 维护 SQL
 
-表结构来源为 `website/src/main/resources/schema.sql`，初始内容来源为同目录 `seed-content.json`、`seed-cms.json`。更新来源后重新生成根目录 SQL，避免两套定义不一致：
+表结构来源为 `website/src/main/resources/schema.sql`，初始内容来源为同目录 `seed-content.json`、`seed-cms.json`。更新来源后重新生成根目录 SQL 和升级脚本，避免两套定义不一致：
 
 ```sh
 python scripts/generate-database-sql.py

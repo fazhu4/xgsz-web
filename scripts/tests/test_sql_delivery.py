@@ -34,10 +34,20 @@ class SqlDeliveryTest(unittest.TestCase):
         self.assertTrue(any(document.get('name') == '模型推理优化' for document in documents))
         self.assertEqual(sum('heroTitle' in document for document in documents), 6)
         self.assertNotIn("'mini'", self.sql)
+        self.assertTrue(any(document.get('name') == '芯光智数' for document in documents))
+        self.assertFalse(any('芯光数智' in json.dumps(document, ensure_ascii=False) for document in documents))
         settings = next(document for document in documents if 'wecomQr' in document)
         self.assertEqual(settings['phone'], '18458055296')
         self.assertEqual(settings['email'], '')
         self.assertEqual(settings['wecomQr'], '')
+
+    def test_company_name_upgrade_is_available_for_existing_databases(self):
+        upgrade = (ROOT / 'database/upgrades/20261110-brand-name.sql').read_text(encoding='utf-8')
+        self.assertIn('company-name-20261110', upgrade)
+        self.assertIn('芯光数智', upgrade)
+        self.assertIn('芯光智数', upgrade)
+        self.assertIn('UPDATE site_page', upgrade)
+        self.assertNotRegex(upgrade, r'(?i)\b(?:DROP|TRUNCATE|DELETE)\b')
 
 
 if __name__ == '__main__':

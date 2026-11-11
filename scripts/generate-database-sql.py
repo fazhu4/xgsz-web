@@ -63,7 +63,7 @@ def generate():
 
     for page_id, page in cms['pages'].items():
         insert('site_page', {'id': page_id, 'payload': page, 'version': 1})
-    for marker in ('cms-admin-migrated-v1', 'cms-catalog-v1', 'initial-content-v1', 'company-offerings-20261109'):
+    for marker in ('cms-admin-migrated-v1', 'cms-catalog-v1', 'initial-content-v1', 'company-offerings-20261109', 'company-name-20261110'):
         insert('site_metadata', {'name': marker, 'content_value': 'complete'})
     statements.append('COMMIT;')
     return '\n\n'.join(statements) + '\n'
@@ -107,6 +107,33 @@ def generate_milestones_upgrade():
     return '\n\n'.join(statements) + '\n'
 
 
+def generate_brand_upgrade():
+    cms = json.loads((RESOURCES / 'seed-cms.json').read_text(encoding='utf-8'))['pages']
+    old_name = literal('芯光数智')
+    new_name = literal(cms['global']['name'])
+    statements = [
+        'SET NAMES utf8mb4;',
+        'START TRANSACTION;',
+        "SET @xgsz_brand_rename = NOT EXISTS (SELECT 1 FROM site_metadata WHERE name='company-name-20261110');",
+        f'SET @xgsz_old_name = {old_name};',
+        f'SET @xgsz_new_name = {new_name};',
+        "UPDATE site_page SET payload=REPLACE(payload,@xgsz_old_name,@xgsz_new_name),version=version+1 WHERE @xgsz_brand_rename AND payload LIKE CONCAT('%',@xgsz_old_name,'%');",
+        "UPDATE site_content SET payload=REPLACE(payload,@xgsz_old_name,@xgsz_new_name),version=version+1,updated_at=CURRENT_TIMESTAMP(6) WHERE @xgsz_brand_rename AND payload LIKE CONCAT('%',@xgsz_old_name,'%');",
+        "UPDATE site_catalog_meta SET payload=REPLACE(payload,@xgsz_old_name,@xgsz_new_name),version=version+1 WHERE @xgsz_brand_rename AND payload LIKE CONCAT('%',@xgsz_old_name,'%');",
+        "UPDATE Products SET name=REPLACE(name,@xgsz_old_name,@xgsz_new_name),description=REPLACE(description,@xgsz_old_name,@xgsz_new_name),brand=REPLACE(brand,@xgsz_old_name,@xgsz_new_name),updateTime=CURRENT_TIMESTAMP WHERE @xgsz_brand_rename AND (name LIKE CONCAT('%',@xgsz_old_name,'%') OR description LIKE CONCAT('%',@xgsz_old_name,'%') OR brand LIKE CONCAT('%',@xgsz_old_name,'%'));",
+        "UPDATE ProductCategories SET name=REPLACE(name,@xgsz_old_name,@xgsz_new_name),description=REPLACE(description,@xgsz_old_name,@xgsz_new_name),updateTime=CURRENT_TIMESTAMP WHERE @xgsz_brand_rename AND (name LIKE CONCAT('%',@xgsz_old_name,'%') OR description LIKE CONCAT('%',@xgsz_old_name,'%'));",
+        "UPDATE Brands SET name=REPLACE(name,@xgsz_old_name,@xgsz_new_name),description=REPLACE(description,@xgsz_old_name,@xgsz_new_name),updateTime=CURRENT_TIMESTAMP WHERE @xgsz_brand_rename AND (name LIKE CONCAT('%',@xgsz_old_name,'%') OR description LIKE CONCAT('%',@xgsz_old_name,'%'));",
+        "UPDATE BrandAuthorizationCertificates SET name=REPLACE(name,@xgsz_old_name,@xgsz_new_name),description=REPLACE(description,@xgsz_old_name,@xgsz_new_name),updateTime=CURRENT_TIMESTAMP WHERE @xgsz_brand_rename AND (name LIKE CONCAT('%',@xgsz_old_name,'%') OR description LIKE CONCAT('%',@xgsz_old_name,'%'));",
+        "UPDATE Carousels SET title=REPLACE(title,@xgsz_old_name,@xgsz_new_name),updateTime=CURRENT_TIMESTAMP WHERE @xgsz_brand_rename AND title LIKE CONCAT('%',@xgsz_old_name,'%');",
+        "UPDATE About SET description=REPLACE(description,@xgsz_old_name,@xgsz_new_name),updateTime=CURRENT_TIMESTAMP WHERE @xgsz_brand_rename AND description LIKE CONCAT('%',@xgsz_old_name,'%');",
+        "UPDATE Businesses SET name=REPLACE(name,@xgsz_old_name,@xgsz_new_name),description=REPLACE(description,@xgsz_old_name,@xgsz_new_name),contactInfo=REPLACE(contactInfo,@xgsz_old_name,@xgsz_new_name),updateTime=CURRENT_TIMESTAMP WHERE @xgsz_brand_rename AND (name LIKE CONCAT('%',@xgsz_old_name,'%') OR description LIKE CONCAT('%',@xgsz_old_name,'%') OR contactInfo LIKE CONCAT('%',@xgsz_old_name,'%'));",
+        "UPDATE BasicInformation SET homeTitle=REPLACE(homeTitle,@xgsz_old_name,@xgsz_new_name),homeDescription=REPLACE(homeDescription,@xgsz_old_name,@xgsz_new_name),copyright=REPLACE(copyright,@xgsz_old_name,@xgsz_new_name) WHERE @xgsz_brand_rename AND (homeTitle LIKE CONCAT('%',@xgsz_old_name,'%') OR homeDescription LIKE CONCAT('%',@xgsz_old_name,'%') OR copyright LIKE CONCAT('%',@xgsz_old_name,'%'));",
+        "INSERT INTO site_metadata(name,content_value) SELECT 'company-name-20261110','complete' WHERE @xgsz_brand_rename;",
+        'COMMIT;'
+    ]
+    return '\n\n'.join(statements) + '\n'
+
+
 def main():
     parser = argparse.ArgumentParser(description='Generate the MySQL installer from the runtime schema and public seed content.')
     parser.add_argument('--check', action='store_true', help='Fail if init.sql does not match its source files.')
@@ -114,7 +141,8 @@ def main():
     outputs = {
         ROOT / 'init.sql': generate(),
         ROOT / 'database/upgrades/20261109-business-directory.sql': generate_upgrade(),
-        ROOT / 'database/upgrades/20261110-about-milestones.sql': generate_milestones_upgrade()
+        ROOT / 'database/upgrades/20261110-about-milestones.sql': generate_milestones_upgrade(),
+        ROOT / 'database/upgrades/20261110-brand-name.sql': generate_brand_upgrade()
     }
     for destination, generated in outputs.items():
         if arguments.check:
