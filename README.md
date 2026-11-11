@@ -26,10 +26,10 @@
 $env:XGSZ_DATABASE_URL='jdbc:mysql://127.0.0.1:3306/xgsz_website?connectionTimeZone=Asia/Shanghai&characterEncoding=UTF-8'
 $env:XGSZ_DATABASE_USER='xgsz_website'
 $env:XGSZ_DATABASE_PASSWORD='填写自己的数据库密码'
-.\启动Demo.cmd
+.\启动官网.cmd
 ```
 
-Windows 可运行 `启动Demo.cmd`、`启动后台.cmd`、`停止项目.cmd`。默认本地官网为 `http://127.0.0.1:8080/`，后台为 `http://127.0.0.1:8080/admin.html`。`Demo` 仅为保留的启动脚本文件名，运行内容使用真实后端和 MySQL。
+Windows 可运行 `启动官网.cmd`、`启动后台.cmd`、`停止项目.cmd`。默认本地官网为 `http://127.0.0.1:8080/`，后台为 `http://127.0.0.1:8080/admin.html`。
 
 手动构建：
 
@@ -56,7 +56,9 @@ java -jar website/target/xgsz-website-1.0.0.jar
 
 ## 部署与验证
 
-- [完整运行和后台使用说明](README-Demo.md)
+- [Docker 一体化部署（推荐验收）](docs/Docker部署.md)
+- [上线待补充资料与运行说明](docs/上线待补充资料与运行说明.md)
+- [完整运行和后台使用说明](docs/运行与后台使用.md)
 - [公司部署说明](docs/部署说明.md)
 - [数据库安装及数据分布](database/README.md)
 - [验证记录](docs/验证记录.md)
