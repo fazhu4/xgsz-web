@@ -20,7 +20,7 @@ test('后台联系方式保存刷新后，在联系页、咨询弹窗和页脚�
   await expect(main.getByRole('link',{name:'400-123-4567',exact:true})).toHaveAttribute('href','tel:4001234567');
   await expect(main.getByText('芯光技术 & 商务 <团队>',{exact:true})).toBeVisible();
   await expect(main.getByRole('link',{name:'通过企业微信联系',exact:true})).toHaveAttribute('href','https://work.weixin.qq.com/kfid/test-contact');
-  await expect(main.getByAltText('芯光数智企业微信二维码')).toBeVisible();
+  await expect(main.getByAltText('芯光智数企业微信二维码')).toBeVisible();
   await page.setViewportSize({width:360,height:800});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.getByRole('button',{name:'业务咨询',exact:true}).click();
@@ -36,7 +36,7 @@ test('后台联系方式保存刷新后，在联系页、咨询弹窗和页脚�
   await page.getByRole('button',{name:'保存设置',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('联系信息已保存');
   await page.goto('/#/contact');
-  await expect(main.getByAltText('芯光数智企业微信二维码')).toHaveCount(0);
+  await expect(main.getByAltText('芯光智数企业微信二维码')).toHaveCount(0);
   await page.goto('/admin.html#/settings');
   await page.getByLabel('企业微信联系链接',{exact:true}).fill('');
   await page.getByRole('button',{name:'保存设置',exact:true}).click();

@@ -20,7 +20,7 @@ test('需求真实提交到服务器，拒绝无效提交并能导出回执', as
   await page.goto('/#/partners');
   await page.getByRole('button', { name: '申请成为合作伙伴' }).click();
   const dialog = page.getByRole('dialog');
-  await expect(dialog.getByText('提交后，您的联系信息与需求将保存到芯光数智业务后台，用于本次业务沟通。')).toBeVisible();
+  await expect(dialog.getByText('提交后，您的联系信息与需求将保存到芯光智数业务后台，用于本次业务沟通。')).toBeVisible();
   await dialog.getByRole('button', { name: '提交需求' }).click();
   await expect(dialog).toBeVisible();
   await dialog.getByLabel('您的称呼').fill('测试联系人');
@@ -32,7 +32,7 @@ test('需求真实提交到服务器，拒绝无效提交并能导出回执', as
   await expect(dialog.getByText('需求已提交')).toBeVisible();
   const download = page.waitForEvent('download');
   await dialog.getByRole('button', { name: '导出提交回执' }).click();
-  expect((await download).suggestedFilename()).toMatch(/芯光数智.*\.json/);
+  expect((await download).suggestedFilename()).toMatch(/芯光智数.*\.json/);
 });
 
 test('手机导航可用，页面没有横向溢出', async ({ page }) => {

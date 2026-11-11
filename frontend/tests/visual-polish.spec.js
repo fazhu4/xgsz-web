@@ -9,12 +9,16 @@ test('手机端正文可读，业务区使用内容驱动的紧凑布局',async(
     expect(size,selector).toBeGreaterThanOrEqual(16);
   }
   await page.goto('/#/products');
+  await page.getByRole('button',{name:'本地化部署',exact:true}).click();
   for(const selector of ['.offering-items li','.offering-heading p']){
     const size=await page.locator(selector).first().evaluate(element=>parseFloat(getComputedStyle(element).fontSize));
     expect(size,selector).toBeGreaterThanOrEqual(16);
   }
-  const section=await page.locator('#offering-deployment').boundingBox();
-  expect(section.height).toBeLessThan(750);
+  await expect(page.locator('#offering-deployment .offering-items strong').first()).toHaveText('裸金属交付');
+  for(const item of await page.locator('#offering-deployment .offering-items li').all()){
+    expect(await item.evaluate(element=>element.scrollWidth<=element.clientWidth)).toBe(true);
+    await expect(item.getByRole('button')).toBeVisible();
+  }
   await page.getByRole('button',{name:'业务咨询',exact:true}).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   expect(await page.getByLabel('您的称呼').evaluate(element=>parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(16);

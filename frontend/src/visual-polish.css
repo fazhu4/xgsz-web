@@ -13,7 +13,6 @@
 .subhero .container{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:36px}
 .subhero-copy{min-width:0}
 .subhero h1,.subhero p{max-width:900px}
-.offerings-page .offering-section:first-of-type{border-top:1px solid #dce6e8}
 .offerings-page .offering-heading{margin-bottom:24px}
 .offerings-page .offering-heading h2{margin-bottom:8px}
 .offerings-page .offering-heading>div>.icon{display:none}

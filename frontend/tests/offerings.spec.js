@@ -14,31 +14,49 @@ test('首页与产品中心完整展示四个业务方向及细分能力，入�
   const capabilities=page.locator('.capability-strip');
   for(const title of ['服务器整机','本地化部署','推理优化','集群交付运维维保'])await expect(capabilities.getByRole('link').filter({hasText:title})).toBeVisible();
   await page.getByRole('link',{name:'探索产品与方案'}).click();
-  await expect(page.getByRole('navigation',{name:'业务方向'})).toHaveCount(0);
-  for(const title of ['服务器整机','本地化部署','推理优化','集群交付运维维保'])await expect(page.locator('.offering-section').getByRole('heading',{name:title,exact:true})).toBeVisible();
+  const navigation=page.getByRole('navigation',{name:'业务方向'});
+  for(const title of ['服务器整机','本地化部署','推理优化','集群交付运维维保'])await expect(navigation.getByRole('button',{name:title,exact:true})).toBeVisible();
+  await expect(page.locator('.offering-section')).toHaveCount(1);
   const servers=page.locator('#offering-servers');
   await expect(servers.locator('.offering-group-grid')).toHaveCount(0);
   const serverTabs=servers.getByRole('tablist',{name:'服务器产品类别'});
-  await expect(serverTabs.getByRole('tab',{name:'全部产品'})).toHaveAttribute('aria-selected','true');
-  await expect(servers.locator('.product-card')).toHaveCount(3);
+  await expect(serverTabs.getByRole('tab')).toHaveCount(3);
+  await expect(serverTabs.getByRole('tab',{name:'全部产品'})).toHaveCount(0);
+  await expect(serverTabs.getByRole('tab',{name:'通用服务器'})).toHaveAttribute('aria-selected','true');
+  await expect(servers.locator('.server-category-panel')).toHaveCount(1);
+  await expect(servers.locator('.product-features li')).toHaveCount(3);
   for(const [tab,image,models] of [
-    ['通用服务器','/assets/server-general.webp',['存储型服务器','通算型服务器']],
-    ['GPU 服务器','/assets/server-gpu.webp',['5090','4090','5080','5060 16G','V100','PRO 6000D','PRO 5000','PRO 6000']],
-    ['国产算力','/assets/server-domestic.webp',['中昊芯英','昆仑芯','曦望','沐曦']]
+    ['通用服务器','/assets/server-general.svg',['存储型服务器','通算型服务器']],
+    ['GPU 服务器','/assets/server-gpu.svg',['5090','4090','5080','5060 16G','V100','PRO 6000D','PRO 5000','PRO 6000']],
+    ['国产算力','/assets/server-domestic.svg',['中昊芯英','昆仑芯','曦望','沐曦']]
   ]){
     await serverTabs.getByRole('tab',{name:tab}).click();
-    await expect(servers.locator('.server-category-panel h3')).toHaveText(tab);
+    await expect(servers.locator('.server-category-panel')).toHaveCount(1);
+    await expect(servers.locator('.server-category-kicker')).toContainText(tab);
     await expect(servers.locator('.server-category-panel img')).toHaveAttribute('src',image);
     for(const model of models)await expect(servers.locator('.server-model-list').getByText(model,{exact:true})).toBeVisible();
-    await expect(servers.locator('.product-card')).toHaveCount(1);
+    await expect(servers.locator('.server-category-panel .product-features li')).toHaveCount(3);
+    await expect(servers.locator('.server-category-panel .product-uses')).toBeVisible();
+    await expect(servers.locator('.server-category-panel .product-bottom button')).toBeVisible();
   }
-  for(const text of ['裸金属交付','整体 Token 输出方案','专业 Agent 工具','Token 平台优化','推理产出优化','集群性能优化','集群交付','集群运维','集群 GPU 维保','液冷维保'])await expect(page.locator('.offering-items').getByText(text,{exact:true})).toBeVisible();
+  await expect(page).toHaveURL(/solution=servers&category=domestic/);
+  for(const [title,items] of [
+    ['本地化部署',['裸金属交付','整体 Token 输出方案','专业 Agent 工具']],
+    ['推理优化',['Token 平台优化','推理产出优化','集群性能优化']],
+    ['集群交付运维维保',['集群交付','集群运维','集群 GPU 维保','液冷维保']]
+  ]){
+    await navigation.getByRole('button',{name:title,exact:true}).click();
+    await expect(page.locator('.offering-section')).toHaveCount(1);
+    await expect(page.locator('.offering-heading h2')).toHaveText(title);
+    for(const text of items)await expect(page.locator('.offering-items').getByText(text,{exact:true})).toBeVisible();
+  }
   await page.goto('/#/products?solution=inference');
-  await expect(page.locator('#offering-inference')).toBeInViewport();
+  await expect(page.locator('#offering-inference')).toBeVisible();
+  await expect(navigation.getByRole('button',{name:'推理优化',exact:true})).toHaveAttribute('aria-pressed','true');
   for(const [name,href] of [['淘宝入口','https://www.taobao.com/'],['抖音入口','https://www.douyin.com/']])await expect(page.getByRole('link',{name,exact:true})).toHaveAttribute('href',href);
   await page.goto('/#/products');
   await page.locator('.subhero').screenshot({path:'../.runtime/optimization-20261109/products-desktop.png'});
-  await page.locator('#offering-servers').screenshot({path:'../.runtime/optimization-20261109/server-directory-desktop.png'});
+  await page.locator('.offering-catalog').screenshot({path:'../.runtime/optimization-20261109/server-directory-desktop.png'});
   await serverTabs.getByRole('tab',{name:'GPU 服务器'}).click();
   await page.locator('#offering-servers').screenshot({path:'../.runtime/server-tabs-gpu-desktop.png'});
   await page.setViewportSize({width:360,height:900});await page.goto('/');
@@ -51,6 +69,7 @@ test('控制台可维护嵌套业务分类、线上链接和项目时间线并�
   await manager(page);const call=await client(page);
   const originalProducts=await call('/admin/pages/products'),originalAbout=await call('/admin/pages/about');
   const visitor=await context.newPage();
+  const marker=`-${Date.now()}`;
   try{
     await page.goto('/admin.html#/page-products');
     await page.getByLabel('淘宝链接',{exact:true}).fill('https://www.taobao.com/?from=company');
@@ -61,28 +80,27 @@ test('控制台可维护嵌套业务分类、线上链接和项目时间线并�
   await deployment.locator(':scope > summary').click();
     await deployment.getByRole('button',{name:'添加细分分类',exact:true}).click();
     const group=deployment.locator('[data-repeater] > .cms-repeater-rows > [data-repeat-row]').last();
-    await group.getByLabel('分类名称',{exact:true}).fill('后台新增部署分类');
-    await group.getByLabel('内容项目（每行一项）',{exact:true}).fill('后台新增能力\n中文与英文 Agent');
+    await group.getByLabel('分类名称',{exact:true}).fill(`后台新增部署分类${marker}`);
+    await group.getByLabel('内容项目（每行一项）',{exact:true}).fill(`后台新增能力${marker}\n中文与英文 Agent${marker}`);
     await page.getByRole('button',{name:'保存页面',exact:true}).click();
     await expect(page.getByRole('status')).toContainText('页面已保存');
     await visitor.goto('/#/products?solution=deployment');
-    await expect(visitor.getByRole('heading',{name:'后台新增部署分类',exact:true})).toBeVisible();
-    await expect(visitor.getByText('后台新增能力',{exact:true})).toBeVisible();
+    await expect(visitor.getByRole('heading',{name:`后台新增部署分类${marker}`,exact:true})).toBeVisible();
+    await expect(visitor.getByText(`后台新增能力${marker}`,{exact:true})).toBeVisible();
     await expect(visitor.getByRole('link',{name:'淘宝入口',exact:true})).toHaveAttribute('href','https://www.taobao.com/?from=company');
     await visitor.goto('/#/products?solution=R%26D');
-    await expect(visitor.locator('[id="offering-R%26D"]')).toBeInViewport();
+    await expect(visitor.locator('[id="offering-R%26D"]')).toBeVisible();
     await page.goto('/admin.html#/page-about');
     await page.getByRole('button',{name:'添加项目动态',exact:true}).click();
     const milestone=page.locator('[data-repeater][data-path="milestones"] [data-repeat-row]').last();
-    await milestone.getByLabel('时间',{exact:true}).fill('2026-11');
-    await milestone.getByLabel('动态标题',{exact:true}).fill('测试环境交付记录');
+    await milestone.getByLabel('时间',{exact:true}).fill('2026-11-12');
+    await milestone.getByLabel('动态标题',{exact:true}).fill(`测试环境交付记录${marker}`);
     await milestone.getByLabel('动态内容',{exact:true}).fill('用于验证后台动态同步的测试内容，不作为实际交付案例。');
     await page.getByRole('button',{name:'保存页面',exact:true}).click();
     await expect(page.getByRole('status')).toContainText('页面已保存');
     await visitor.goto('/#/about');
-    await expect(visitor.locator('.project-timeline').getByText('2026-11',{exact:true})).toBeVisible();
-    await expect(visitor.locator('.project-timeline').getByRole('heading',{name:'测试环境交付记录',exact:true})).toBeVisible();
-    await visitor.locator('.company-milestones').screenshot({path:'../.runtime/optimization-20261109/project-timeline-desktop.png'});
+    await expect(visitor.locator('.about-project-feature').getByRole('heading',{name:`测试环境交付记录${marker}`,exact:true})).toBeVisible();
+    await visitor.locator('.about-projects').screenshot({path:'../.runtime/optimization-20261109/about-projects-desktop.png'});
     for(const width of [320,768,1440]){
       await visitor.setViewportSize({width,height:900});
       for(const route of ['/products','/about']){

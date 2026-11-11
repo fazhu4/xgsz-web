@@ -90,7 +90,7 @@ test('后台批量添加长文案与横竖图片后，官网各栏目自适应�
     }
     await catalog('productCarousels',{products:products.map(product=>product.productId)});
     await call('/admin/pages/home','PUT',{...home,heroTitle:Array(5).fill('根据业务需求提供适配的服务器与算力方案').join('\n'),heroDesc:description,heroNote:token,industries:[...home.industries,{name:token,title:token,desc:description,tags:token,icon:'chip'}]});
-    await call('/admin/pages/global','PUT',{...global,name:'芯光数智企业算力技术服务有限公司',englishName:token,ctaTitle:token,ctaDesc:description,productsNav:'产品与算力解决方案展示中心',servicesNav:'部署优化与运维技术服务'});
+    await call('/admin/pages/global','PUT',{...global,name:'芯光智数企业算力技术服务有限公司',englishName:token,ctaTitle:token,ctaDesc:description,productsNav:'产品与算力解决方案展示中心',servicesNav:'部署优化与运维技术服务'});
     await call('/admin/pages/about','PUT',{...about,businessAreas:[...about.businessAreas,{title:token,desc:description,icon:'chip',link:'#/services',button:token}],principles:[...about.principles,{title:token,desc:description}]});
     const publicContent=await call('/public/content');const failures=[];
     for(const width of [320,360,768,1024,1440]){
@@ -115,7 +115,7 @@ test('后台批量添加长文案与横竖图片后，官网各栏目自适应�
       }
     }
     expect(errors).toEqual([]);expect(failures).toEqual([]);
-    await visitor.goto('/#/products');await expect(visitor.locator('#product-grid .product-card')).toHaveCount((await call('/public/content')).products.length);
+    await visitor.goto('/#/products');await expect(visitor.locator('#product-grid .server-category-panel')).toHaveCount(1);
   }finally{
     for(const[key,original]of [['home',home],['global',global],['about',about]]){const latest=await call(`/admin/pages/${key}`);await call(`/admin/pages/${key}`,'PUT',{...original,version:latest.version});}
     for(const remove of cleanup.reverse())await remove();await visitor.close();
