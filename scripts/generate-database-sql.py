@@ -29,7 +29,7 @@ def generate():
     schema = schema.replace(');', ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;')
     content = json.loads((RESOURCES / 'seed-content.json').read_text(encoding='utf-8'))
     cms = json.loads((RESOURCES / 'seed-cms.json').read_text(encoding='utf-8'))
-    statements = ['SET NAMES utf8mb4;', schema.rstrip(), 'START TRANSACTION;']
+    statements = ['SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;', schema.rstrip(), 'START TRANSACTION;']
     guard = ' AND\n '.join(f'NOT EXISTS (SELECT 1 FROM `{table}`)' for table in tables)
     statements.append(f'SET @xgsz_initialize =\n {guard};')
 
@@ -76,7 +76,7 @@ def generate_upgrade():
     capabilities = literal(cms['home']['capabilities'])
     note = literal(cms['home']['heroNote'])
     footer = literal(cms['global']['footerNote'])
-    statements = ['SET NAMES utf8mb4;', 'START TRANSACTION;', "SET @xgsz_upgrade = NOT EXISTS (SELECT 1 FROM site_metadata WHERE name='company-offerings-20261109');"]
+    statements = ['SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;', 'START TRANSACTION;', "SET @xgsz_upgrade = NOT EXISTS (SELECT 1 FROM site_metadata WHERE name='company-offerings-20261109');"]
     statements.append(f"UPDATE site_page SET payload=JSON_SET(payload, '$.capabilities', CAST({capabilities} AS JSON), '$.heroNote', {note}),version=version+1 WHERE id='home' AND @xgsz_upgrade;")
     statements.append(f"UPDATE site_page SET payload=JSON_SET(payload, '$.footerNote', {footer}),version=version+1 WHERE id='global' AND @xgsz_upgrade;")
     for page_id in ('products', 'about'):
@@ -97,7 +97,7 @@ def generate_milestones_upgrade():
     meta = literal({key: about[key] for key in ('milestonesTitle', 'milestonesDesc')})
     milestones = literal(about['milestones'])
     statements = [
-        'SET NAMES utf8mb4;',
+        'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;',
         'START TRANSACTION;',
         "SET @xgsz_about_milestones = NOT EXISTS (SELECT 1 FROM site_metadata WHERE name='about-milestones-20261110');",
         f"UPDATE site_page SET payload=JSON_SET(JSON_MERGE_PATCH(CAST({meta} AS JSON),payload),'$.milestones',CAST({milestones} AS JSON)),version=version+1 WHERE id='about' AND @xgsz_about_milestones AND (JSON_EXTRACT(payload,'$.milestones') IS NULL OR JSON_LENGTH(JSON_EXTRACT(payload,'$.milestones'))=0);",
@@ -112,7 +112,7 @@ def generate_brand_upgrade():
     old_name = literal('芯光数智')
     new_name = literal(cms['global']['name'])
     statements = [
-        'SET NAMES utf8mb4;',
+        'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;',
         'START TRANSACTION;',
         "SET @xgsz_brand_rename = NOT EXISTS (SELECT 1 FROM site_metadata WHERE name='company-name-20261110');",
         f'SET @xgsz_old_name = {old_name};',
